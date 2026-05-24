@@ -1,0 +1,5 @@
+RANDOM_STATE = 42
+NUM_CLASSES = 3
+CLASS_NAMES = ["Kötü", "Orta", "İyi"]
+TEST_SIZE = 0.15
+VAL_SIZE = 0.15
