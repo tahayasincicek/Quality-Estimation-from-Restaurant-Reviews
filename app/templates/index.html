@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Analyze - ReviewSentiment{% endblock %}
+{% block content %}
+<h1 class="page-title">Review Analysis</h1>
+<p class="page-desc">Enter a restaurant review to predict quality.</p>
+
+<div class="predict-grid">
+  <!-- Sol: Input -->
+  <div>
+    <div class="form-group">
+      <label class="form-label">Model</label>
+      <div class="btn-group" id="model-select">
+        <button class="btn active" data-model="lr">LR</button>
+        <button class="btn" data-model="svm">SVM</button>
+        <button class="btn" data-model="lstm">LSTM</button>
+        <button class="btn" data-model="bilstm">BiLSTM</button>
+        <button class="btn" data-model="cnnlstm">CNN+LSTM</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Review Text</label>
+      <textarea id="predict-text" rows="8" placeholder="Type or paste a review here..."></textarea>
+      <div class="input-footer">
+        <div class="sample-links">
+          Load sample: 
+          <a>Positive</a> &middot; <a>Neutral</a> &middot; <a>Negative</a>
+        </div>
+        <span class="char-count" id="char-count">0 characters</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" id="btn-analyze">Analyze</button>
+  </div>
+
+  <!-- Sağ: Result -->
+  <div>
+    <label class="form-label">Analysis Result</label>
+    
+    <div id="result-empty" class="result-empty">
+      Results will appear here.
+    </div>
+
+    <div id="result-content" style="display: none;">
+      <div class="result-label-row">
+        <div id="res-indicator" class="result-indicator"></div>
+        <div id="res-pred" class="result-prediction"></div>
+      </div>
+      <div class="result-meta">Analysis completed in <span id="res-time"></span></div>
+
+      <hr class="divider">
+
+      <div class="section-label">Confidence</div>
+      <div class="conf-row">
+        <div class="conf-name">Good</div>
+        <div class="conf-bar-bg"><div id="conf-good" class="conf-bar-fill fill-good" style="width:0%"></div></div>
+        <div id="conf-good-val" class="conf-pct">0%</div>
+      </div>
+      <div class="conf-row">
+        <div class="conf-name">Average</div>
+        <div class="conf-bar-bg"><div id="conf-avg" class="conf-bar-fill fill-average" style="width:0%"></div></div>
+        <div id="conf-avg-val" class="conf-pct">0%</div>
+      </div>
+      <div class="conf-row">
+        <div class="conf-name">Poor</div>
+        <div class="conf-bar-bg"><div id="conf-poor" class="conf-bar-fill fill-poor" style="width:0%"></div></div>
+        <div id="conf-poor-val" class="conf-pct">0%</div>
+      </div>
+
+      <div id="res-stats" class="result-stats"></div>
+
+      <div class="section-label">Word Impact</div>
+      <div style="height: 200px; width: 100%;">
+        <canvas id="word-impact-chart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-24" style="padding-top: 40px;">
+  <div class="section-label">All Models</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>Type</th>
+        <th>Prediction</th>
+        <th>Confidence</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody id="all-models-tbody">
+      <tr><td colspan="5" class="text-faint">Run analysis to see all models.</td></tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}

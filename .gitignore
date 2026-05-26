@@ -6,3 +6,6 @@ results/
 *.json
 __pycache__/
 .ipynb_checkpoints/
+Yelp JSON/
+Yelp-JSON.zip
+desktop.ini

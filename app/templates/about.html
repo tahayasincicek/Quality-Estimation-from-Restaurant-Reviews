@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}About - ReviewSentiment{% endblock %}
+{% block content %}
+<h1 class="page-title">About</h1>
+<p class="page-desc">Quality estimation of restaurant reviews using the Yelp Open Dataset.</p>
+
+<div class="about-section mt-24">
+  <div class="about-section-title">Dataset</div>
+  <p class="text-muted mb-16" style="max-width: 700px;">
+    The models are trained on a large subset of the Yelp Open Dataset, specifically filtered for "Restaurants". 
+    To ensure balanced learning, the classes were harmonized and cleaned, resulting in a training corpus of over 1.14 million reviews.
+  </p>
+  <table style="max-width: 500px;">
+    <tr><td class="strong">Total Raw Reviews</td><td>~6.9 Million</td></tr>
+    <tr><td class="strong">Filtered Restaurants</td><td>~4.7 Million</td></tr>
+    <tr><td class="strong">Final Cleaned Corpus</td><td>1,139,836</td></tr>
+    <tr><td class="strong">Deep Learning Subset</td><td>100,000</td></tr>
+  </table>
+</div>
+
+<div class="about-section">
+  <div class="about-section-title">Models</div>
+  <table style="max-width: 800px;">
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>Type</th>
+        <th>Architecture / Input</th>
+        <th>Strength</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="strong">Logistic Regression</td>
+        <td>Classical ML</td>
+        <td>TF-IDF (50k features) + 8 Numeric</td>
+        <td>Fastest inference, highly interpretable.</td>
+      </tr>
+      <tr>
+        <td class="strong">SVM (LinearSVC)</td>
+        <td>Classical ML</td>
+        <td>TF-IDF + Numeric (Calibrated)</td>
+        <td>Excellent margin separation.</td>
+      </tr>
+      <tr>
+        <td class="strong">LSTM</td>
+        <td>Deep Learning</td>
+        <td>Embedding (128) &rarr; LSTM (64)</td>
+        <td>Captures sequential long-term dependencies.</td>
+      </tr>
+      <tr>
+        <td class="strong">BiLSTM</td>
+        <td>Deep Learning</td>
+        <td>Embedding &rarr; Bidirectional LSTM</td>
+        <td>Understands both past and future context.</td>
+      </tr>
+      <tr>
+        <td class="strong">CNN+LSTM</td>
+        <td>Deep Learning</td>
+        <td>Conv1D &rarr; MaxPooling &rarr; LSTM</td>
+        <td>Extracts local n-gram features efficiently.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="about-section">
+  <div class="about-section-title">Quality Classes</div>
+  <div class="class-cards">
+    <div class="class-card poor">
+      <div class="class-card-name">Poor (Kötü)</div>
+      <div class="class-card-stars">1 - 2 Stars</div>
+      <div class="class-card-desc">Negative experiences, complaints, bad service, or poor food quality.</div>
+    </div>
+    <div class="class-card average">
+      <div class="class-card-name">Average (Orta)</div>
+      <div class="class-card-stars">3 Stars</div>
+      <div class="class-card-desc">Neutral feelings, mixed reviews, "okay" but not outstanding.</div>
+    </div>
+    <div class="class-card good">
+      <div class="class-card-name">Good (İyi)</div>
+      <div class="class-card-stars">4 - 5 Stars</div>
+      <div class="class-card-desc">Positive feedback, recommendations, excellent food and service.</div>
+    </div>
+  </div>
+</div>
+
+<div class="about-section">
+  <div class="about-section-title">How to Run</div>
+  <div class="code-step">
+    <div class="step-num">1.</div>
+    <div>Install dependencies: <code>pip install -r requirements.txt</code></div>
+  </div>
+  <div class="code-step">
+    <div class="step-num">2.</div>
+    <div>Run data preparation (Notebook 1 & 3): <code>python data_preparation.py</code></div>
+  </div>
+  <div class="code-step">
+    <div class="step-num">3.</div>
+    <div>Train models (Notebook 4 & 5): Extract TF-IDF and train LR, SVM, LSTM.</div>
+  </div>
+  <div class="code-step">
+    <div class="step-num">4.</div>
+    <div>Start UI: <code>cd app && python app.py</code></div>
+  </div>
+</div>
+{% endblock %}

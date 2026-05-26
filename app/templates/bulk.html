@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Bulk Analysis - ReviewSentiment{% endblock %}
+{% block content %}
+<h1 class="page-title">Bulk Analysis</h1>
+<p class="page-desc">Process multiple reviews at once using text input or CSV upload.</p>
+
+<div class="bulk-grid">
+  <!-- Sol Sütun -->
+  <div>
+    <div class="form-group">
+      <label class="form-label">Model</label>
+      <div class="btn-group" id="bulk-model-select" style="display:flex;">
+        <button class="btn active" data-model="lr" style="flex:1;">LR</button>
+        <button class="btn" data-model="svm" style="flex:1;">SVM</button>
+        <button class="btn" data-model="lstm" style="flex:1;">LSTM</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Input Method</label>
+      <div style="display:flex; gap:16px; font-size:13px;">
+        <label style="cursor:pointer;"><input type="radio" name="bulk-method" value="text" checked> Text Input</label>
+        <label style="cursor:pointer;"><input type="radio" name="bulk-method" value="csv"> CSV Upload</label>
+      </div>
+    </div>
+
+    <div id="bulk-text-wrap" class="form-group">
+      <textarea id="bulk-text" rows="12" placeholder="Paste multiple reviews here.&#10;One review per line."></textarea>
+      <div class="text-faint mt-8" style="font-size:11px;">Limit: 500 lines</div>
+    </div>
+
+    <div id="bulk-csv-wrap" class="form-group" style="display:none;">
+      <div id="drop-zone" class="drop-zone">
+        <i data-lucide="upload-cloud"></i>
+        <div id="drop-zone-text">Drop CSV or click to browse</div>
+      </div>
+      <input type="file" id="csv-file" accept=".csv" style="display:none;">
+    </div>
+
+    <button class="btn btn-primary btn-full" id="btn-bulk">Analyze</button>
+  </div>
+
+  <!-- Sağ Sütun -->
+  <div>
+    <label class="form-label">Results</label>
+    
+    <div id="bulk-empty" class="result-empty">
+      Run analysis to see results.
+    </div>
+
+    <div id="bulk-results" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+        <div id="bulk-summary" class="result-stats" style="margin:0; border:none; padding:0;"></div>
+        <div style="width:200px; height:200px;"><canvas id="bulk-doughnut"></canvas></div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:8px;">
+        <div style="font-size:12px;" class="text-muted">
+          Filter: 
+          <a href="#" class="filter-link" style="color:var(--fg);font-weight:500;">All</a> &middot;
+          <a href="#" class="filter-link text-muted">Good</a> &middot;
+          <a href="#" class="filter-link text-muted">Average</a> &middot;
+          <a href="#" class="filter-link text-muted">Poor</a>
+        </div>
+        <div style="font-size:12px;">
+          Export as: <a href="#" id="export-csv" style="color:var(--accent);">CSV</a>
+        </div>
+      </div>
+
+      <div style="border:1px solid var(--border); border-radius:6px; overflow:hidden;">
+        <table style="margin:0;">
+          <thead>
+            <tr>
+              <th style="width:40px;">#</th>
+              <th>Review</th>
+              <th style="width:100px;">Prediction</th>
+              <th style="width:80px;">Conf.</th>
+            </tr>
+          </thead>
+          <tbody id="bulk-tbody">
+            <!-- JS dolduracak -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

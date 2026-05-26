@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}EDA - ReviewSentiment{% endblock %}
+{% block content %}
+<h1 class="page-title">Data Analysis</h1>
+<p class="page-desc">Exploratory Data Analysis of the Yelp Restaurant Reviews dataset.</p>
+
+<div class="stat-row">
+  <div class="stat-cell">
+    <div class="stat-label">Total Reviews</div>
+    <div class="stat-value">1,139,836</div>
+    <div class="stat-sub">After cleaning</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Restaurants</div>
+    <div class="stat-value">52,341</div>
+    <div class="stat-sub">Filtered from Yelp Open Dataset</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Avg Rating</div>
+    <div class="stat-value">3.82</div>
+    <div class="stat-sub">Out of 5 stars</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Date Range</div>
+    <div class="stat-value">2005 - 2022</div>
+    <div class="stat-sub">17 years of data</div>
+  </div>
+</div>
+
+<div class="tab-bar mt-24">
+  <button class="tab-btn active" data-target="tab-dist">Distributions</button>
+  <button class="tab-btn" data-target="tab-words">Word Analysis</button>
+  <button class="tab-btn" data-target="tab-stat">Statistical</button>
+  <button class="tab-btn" data-target="tab-time">Time Trend</button>
+</div>
+
+<div class="tab-content">
+  <div id="tab-dist" class="tab-pane active">
+    <div class="grid-2">
+      <img src="/eda_img/eda_class_distribution" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+      <img src="/eda_img/eda_star_distribution" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+      <img src="/eda_img/eda_review_length" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+      <img src="/eda_img/eda_word_count" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+    </div>
+  </div>
+  
+  <div id="tab-words" class="tab-pane">
+    <div class="btn-group mb-16" id="wc-btns">
+      <button class="btn active" data-class="kotu">Poor</button>
+      <button class="btn" data-class="orta">Average</button>
+      <button class="btn" data-class="iyi">Good</button>
+    </div>
+    <div class="mb-24">
+      <img id="wc-img" src="/eda_img/eda_wordcloud_kotu" style="max-width:600px; width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+    </div>
+    <div class="section-label">Top Words & Bigrams</div>
+    <div class="grid-2">
+      <img src="/eda_img/eda_top_words" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+      <img src="/eda_img/eda_bigrams" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+    </div>
+  </div>
+
+  <div id="tab-stat" class="tab-pane">
+    <div class="grid-2">
+      <img src="/eda_img/eda_social_features" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+      <img src="/eda_img/eda_length_vs_stars" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+    </div>
+  </div>
+
+  <div id="tab-time" class="tab-pane">
+    <img src="/eda_img/eda_time_trend" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const wcBtns = document.querySelectorAll('#wc-btns .btn');
+  const wcImg = document.getElementById('wc-img');
+  wcBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      wcImg.src = `/eda_img/eda_wordcloud_${btn.getAttribute('data-class')}`;
+    });
+  });
+});
+</script>
+{% endblock %}

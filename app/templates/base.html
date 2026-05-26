@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ReviewSentiment{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- JS Libraries -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">ReviewSentiment</div>
+      
+      <nav class="nav-links">
+        <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">
+          <i data-lucide="message-square"></i>
+          <span>Analyze</span>
+        </a>
+        <a href="/comparison" class="nav-item {% if request.path == '/comparison' %}active{% endif %}">
+          <i data-lucide="bar-chart-2"></i>
+          <span>Comparison</span>
+        </a>
+        <a href="/eda" class="nav-item {% if request.path == '/eda' %}active{% endif %}">
+          <i data-lucide="trending-up"></i>
+          <span>Data Analysis</span>
+        </a>
+        <a href="/bulk" class="nav-item {% if request.path == '/bulk' %}active{% endif %}">
+          <i data-lucide="list"></i>
+          <span>Bulk Analysis</span>
+        </a>
+        <a href="/about" class="nav-item {% if request.path == '/about' %}active{% endif %}">
+          <i data-lucide="info"></i>
+          <span>About</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="model-status-list">
+          {% for m, status in models_status.items() %}
+          <div class="model-status-item">
+            <span class="status-dot {% if status == 'ok' %}ok{% else %}err{% endif %}" title="{{status}}"></span>
+            {{ m | upper }}
+          </div>
+          {% endfor %}
+        </div>
+        <button id="theme-toggle" class="theme-btn">
+          <i data-lucide="sun"></i> Light
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Comparison - ReviewSentiment{% endblock %}
+{% block content %}
+<h1 class="page-title">Model Comparison</h1>
+<p class="page-desc">Performance metrics across all trained models.</p>
+
+<div class="stat-row">
+  <div class="stat-cell">
+    <div class="stat-label">Best Model</div>
+    <div class="stat-value">Logistic Reg.</div>
+    <div class="stat-sub">By overall F1-score</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Highest F1</div>
+    <div class="stat-value">0.798</div>
+    <div class="stat-sub">Macro average</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Best Accuracy</div>
+    <div class="stat-value">80.0%</div>
+    <div class="stat-sub">On 15% unseen test set</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Fastest</div>
+    <div class="stat-value">Logistic Reg.</div>
+    <div class="stat-sub">Inference time</div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<table class="mb-16">
+  <thead>
+    <tr>
+      <th class="sortable">Model</th>
+      <th class="sortable desc">Accuracy</th>
+      <th class="sortable">Precision</th>
+      <th class="sortable">Recall</th>
+      <th class="sortable">F1 Score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="strong">Logistic Regression</td><td class="strong">0.800</td><td class="strong">0.798</td><td class="strong">0.797</td><td class="strong">0.798</td></tr>
+    <tr><td>SVM</td><td>0.795</td><td>0.793</td><td>0.791</td><td>0.793</td></tr>
+    <tr><td>LSTM</td><td>0.764</td><td>0.768</td><td>0.765</td><td>0.767</td></tr>
+    <tr><td>BiLSTM</td><td>0.740</td><td>0.739</td><td>0.738</td><td>0.738</td></tr>
+    <tr><td>CNN+LSTM</td><td>0.715</td><td>0.708</td><td>0.706</td><td>0.707</td></tr>
+  </tbody>
+</table>
+
+<div class="tab-bar mt-24">
+  <button class="tab-btn active" data-target="tab-metrics">Metrics</button>
+  <button class="tab-btn" data-target="tab-radar">Radar</button>
+  <button class="tab-btn" data-target="tab-cm">Confusion Matrix</button>
+  <button class="tab-btn" data-target="tab-roc">ROC & PR</button>
+  <button class="tab-btn" data-target="tab-train">Training</button>
+</div>
+
+<div class="tab-content">
+  <div id="tab-metrics" class="tab-pane active" style="height: 300px;">
+    <canvas id="metrics-chart"></canvas>
+  </div>
+  <div id="tab-radar" class="tab-pane" style="height: 350px;">
+    <canvas id="radar-chart"></canvas>
+  </div>
+  <div id="tab-cm" class="tab-pane">
+    <div class="btn-group mb-16" id="cm-btns">
+      <button class="btn active" data-model="lr">LR</button>
+      <button class="btn" data-model="svm">SVM</button>
+      <button class="btn" data-model="lstm">LSTM</button>
+      <button class="btn" data-model="bilstm">BiLSTM</button>
+      <button class="btn" data-model="cnnlstm">CNN+LSTM</button>
+    </div>
+    <div>
+      <img id="cm-img" src="/confusion/lr" style="max-width: 500px; width: 100%; border: 1px solid var(--border); border-radius: 6px;">
+    </div>
+  </div>
+  <div id="tab-roc" class="tab-pane">
+    <div class="grid-2">
+      <img src="/eda_img/roc_curves" style="width:100%; border:1px solid var(--border); border-radius:6px;">
+      <img src="/eda_img/pr_curves" style="width:100%; border:1px solid var(--border); border-radius:6px;">
+    </div>
+  </div>
+  <div id="tab-train" class="tab-pane">
+    <div class="btn-group mb-16" id="hist-btns">
+      <button class="btn active" data-model="lstm">LSTM</button>
+      <button class="btn" data-model="bilstm">BiLSTM</button>
+      <button class="btn" data-model="cnnlstm">CNN+LSTM</button>
+    </div>
+    <div>
+      <img id="hist-img" src="/history/lstm" style="max-width: 600px; width: 100%; border: 1px solid var(--border); border-radius: 6px;">
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.drawGroupedBar && window.drawRadar) {
+    const models = ['LR', 'SVM', 'LSTM', 'BiLSTM', 'CNN+LSTM'];
+    const acc = [0.800, 0.795, 0.764, 0.740, 0.715];
+    const f1 = [0.798, 0.793, 0.767, 0.738, 0.707];
+    drawGroupedBar('metrics-chart', models, [acc, f1], ['Accuracy', 'F1 Score']);
+    
+    drawRadar('radar-chart', ['Accuracy', 'Precision', 'Recall', 'F1 Score'], [
+      [0.800, 0.798, 0.797, 0.798],
+      [0.795, 0.793, 0.791, 0.793],
+      [0.764, 0.768, 0.765, 0.767],
+      [0.740, 0.739, 0.738, 0.738],
+      [0.715, 0.708, 0.706, 0.707]
+    ], models);
+  }
+});
+</script>
+{% endblock %}
