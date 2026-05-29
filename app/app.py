@@ -44,7 +44,7 @@ vectorizer = None
 scaler = None
 tokenizer = None
 models_status = {
-    'lr': 'err', 'svm': 'err', 'lstm': 'err', 'bilstm': 'err', 'cnnlstm': 'err'
+    'lr': 'err', 'svm': 'err', 'lstm': 'err', 'bilstm': 'err', 'lgbm': 'err'
 }
 
 def load_resources():
@@ -74,9 +74,9 @@ def load_resources():
             models['bilstm'] = tf.keras.models.load_model(os.path.join(MODELS_DIR, 'bilstm_model.h5'))
             models_status['bilstm'] = 'ok'
             
-        if os.path.exists(os.path.join(MODELS_DIR, 'cnn_lstm_model.h5')):
-            models['cnnlstm'] = tf.keras.models.load_model(os.path.join(MODELS_DIR, 'cnn_lstm_model.h5'))
-            models_status['cnnlstm'] = 'ok'
+        if os.path.exists(os.path.join(MODELS_DIR, 'lgbm_model.pkl')):
+            models['lgbm'] = joblib.load(os.path.join(MODELS_DIR, 'lgbm_model.pkl'))
+            models_status['lgbm'] = 'ok'
             
     except Exception as e:
         print(f"Error loading models: {e}")
@@ -152,7 +152,7 @@ def get_prediction(text, model_name='lr'):
             # fake confidence
             conf_dict = {'poor': 100 if pred_idx==0 else 0, 'average': 100 if pred_idx==1 else 0, 'good': 100 if pred_idx==2 else 0}
             
-    elif model_name in ['lstm', 'bilstm', 'cnnlstm'] and tokenizer:
+    elif model_name in ['lstm', 'bilstm', 'lgbm'] and tokenizer:
         seq = tokenizer.texts_to_sequences([cleaned])
         padded = pad_sequences(seq, maxlen=200, padding='post', truncating='post')
         
@@ -209,10 +209,10 @@ def predict():
     
     # Run all models quickly for the "All Models" table
     all_models_res = []
-    for m in ['lr', 'svm', 'lstm', 'bilstm', 'cnnlstm']:
+    for m in ['lr', 'svm', 'lstm', 'bilstm', 'lgbm']:
         if m in models:
             m_res = get_prediction(text, m)
-            type_str = 'Deep' if m in ['lstm', 'bilstm', 'cnnlstm'] else 'Classical'
+            type_str = 'Deep' if m in ['lstm', 'bilstm', 'lgbm'] else 'Classical'
             all_models_res.append({
                 'name': m.upper(),
                 'type': type_str,
@@ -253,7 +253,7 @@ def get_confusion(model):
         'svm': 'confusion_matrix_SVM.png',
         'lstm': 'confusion_matrix_LSTM.png',
         'bilstm': 'confusion_matrix_BiLSTM.png',
-        'cnnlstm': 'confusion_matrix_CNN_LSTM.png'
+        'lgbm': 'confusion_matrix_CNN_LSTM.png'
     }
     filename = cmap.get(model, f'cm_{model}.png')
     return send_from_directory(RESULTS_DIR, filename)
@@ -263,7 +263,7 @@ def get_history(model):
     hmap = {
         'lstm': 'history_lstm.png',
         'bilstm': 'history_bilstm.png',
-        'cnnlstm': 'history_cnn_lstm.png'
+        'lgbm': 'history_cnn_lstm.png'
     }
     filename = hmap.get(model, f'history_{model}.png')
     return send_from_directory(RESULTS_DIR, filename)

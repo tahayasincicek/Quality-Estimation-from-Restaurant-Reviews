@@ -44,7 +44,7 @@
     <tr><td>SVM</td><td>0.795</td><td>0.793</td><td>0.791</td><td>0.793</td></tr>
     <tr><td>LSTM</td><td>0.764</td><td>0.768</td><td>0.765</td><td>0.767</td></tr>
     <tr><td>BiLSTM</td><td>0.740</td><td>0.739</td><td>0.738</td><td>0.738</td></tr>
-    <tr><td>CNN+LSTM</td><td>0.715</td><td>0.708</td><td>0.706</td><td>0.707</td></tr>
+    <tr><td>LightGBM</td><td>0.715</td><td>0.708</td><td>0.706</td><td>0.707</td></tr>
   </tbody>
 </table>
 
@@ -69,7 +69,7 @@
       <button class="btn" data-model="svm">SVM</button>
       <button class="btn" data-model="lstm">LSTM</button>
       <button class="btn" data-model="bilstm">BiLSTM</button>
-      <button class="btn" data-model="cnnlstm">CNN+LSTM</button>
+      <button class="btn" data-model="lgbm">LightGBM</button>
     </div>
     <div>
       <img id="cm-img" src="/confusion/lr" style="max-width: 500px; width: 100%; border: 1px solid var(--border); border-radius: 6px;">
@@ -85,7 +85,7 @@
     <div class="btn-group mb-16" id="hist-btns">
       <button class="btn active" data-model="lstm">LSTM</button>
       <button class="btn" data-model="bilstm">BiLSTM</button>
-      <button class="btn" data-model="cnnlstm">CNN+LSTM</button>
+      <button class="btn" data-model="lgbm">LightGBM</button>
     </div>
     <div>
       <img id="hist-img" src="/history/lstm" style="max-width: 600px; width: 100%; border: 1px solid var(--border); border-radius: 6px;">
@@ -96,7 +96,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   if (window.drawGroupedBar && window.drawRadar) {
-    const models = ['LR', 'SVM', 'LSTM', 'BiLSTM', 'CNN+LSTM'];
+    const models = ['LR', 'SVM', 'LSTM', 'BiLSTM', 'LightGBM'];
     const acc = [0.800, 0.795, 0.764, 0.740, 0.715];
     const f1 = [0.798, 0.793, 0.767, 0.738, 0.707];
     drawGroupedBar('metrics-chart', models, [acc, f1], ['Accuracy', 'F1 Score']);
