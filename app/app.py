@@ -12,9 +12,11 @@ from textblob import TextBlob
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+import os
+os.environ["KERAS_BACKEND"] = "torch"
+import keras
+from keras.utils import pad_sequences
 import tensorflow as tf
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-
 warnings.filterwarnings('ignore')
 
 app = Flask(__name__)
@@ -44,7 +46,7 @@ vectorizer = None
 scaler = None
 tokenizer = None
 models_status = {
-    'lr': 'err', 'svm': 'err', 'lstm': 'err', 'bilstm': 'err', 'lgbm': 'err'
+    'lr': 'err', 'svm': 'err', 'cnn': 'err', 'bilstm': 'err', 'lgbm': 'err'
 }
 
 def load_resources():
@@ -63,15 +65,15 @@ def load_resources():
             models_status['lr'] = 'ok'
             
         if os.path.exists(os.path.join(MODELS_DIR, 'svm_model.pkl')):
-            models['svm'] = joblib.load(os.path.join(MODELS_DIR, 'svm_model.pkl'))
-            models_status['svm'] = 'ok'
-            
-        if os.path.exists(os.path.join(MODELS_DIR, 'lstm_model.h5')):
-            models['lstm'] = tf.keras.models.load_model(os.path.join(MODELS_DIR, 'lstm_model.h5'))
+            models['lstm'] = keras.models.load_model(os.path.join(MODELS_DIR, 'lstm_model.h5'))
             models_status['lstm'] = 'ok'
             
+        if os.path.exists(os.path.join(MODELS_DIR, 'cnn_model.h5')):
+            models['cnn'] = keras.models.load_model(os.path.join(MODELS_DIR, 'cnn_model.h5'))
+            models_status['cnn'] = 'ok'
+            
         if os.path.exists(os.path.join(MODELS_DIR, 'bilstm_model.h5')):
-            models['bilstm'] = tf.keras.models.load_model(os.path.join(MODELS_DIR, 'bilstm_model.h5'))
+            models['bilstm'] = keras.models.load_model(os.path.join(MODELS_DIR, 'bilstm_model.h5'))
             models_status['bilstm'] = 'ok'
             
         if os.path.exists(os.path.join(MODELS_DIR, 'lgbm_model.pkl')):
@@ -125,7 +127,7 @@ def get_prediction(text, model_name='lr'):
     pred_idx = 1
     conf_dict = {'poor': 0, 'average': 0, 'good': 0}
     
-    if model_name in ['lr', 'svm'] and vectorizer and scaler:
+    if model_name in ['lr', 'svm', 'lgbm'] and vectorizer and scaler:
         tfidf_mat = vectorizer.transform([cleaned])
         
         # Simple top words based on tfidf
@@ -139,7 +141,7 @@ def get_prediction(text, model_name='lr'):
             top_words.append({'word': str(feature_names[col]), 'score': float(round(score * pol * 100, 1))})
             
         num_mat = scaler.transform([num_feats])
-        combined = scipy.sparse.hstack([tfidf_mat, scipy.sparse.csr_matrix(num_mat)])
+        combined = scipy.sparse.hstack([tfidf_mat, scipy.sparse.csr_matrix(num_mat)]).tocsr()
         
         model = models[model_name]
         if hasattr(model, 'predict_proba'):
@@ -152,7 +154,7 @@ def get_prediction(text, model_name='lr'):
             # fake confidence
             conf_dict = {'poor': 100 if pred_idx==0 else 0, 'average': 100 if pred_idx==1 else 0, 'good': 100 if pred_idx==2 else 0}
             
-    elif model_name in ['lstm', 'bilstm', 'lgbm'] and tokenizer:
+    elif model_name in ['cnn', 'bilstm'] and tokenizer:
         seq = tokenizer.texts_to_sequences([cleaned])
         padded = pad_sequences(seq, maxlen=200, padding='post', truncating='post')
         
@@ -209,10 +211,10 @@ def predict():
     
     # Run all models quickly for the "All Models" table
     all_models_res = []
-    for m in ['lr', 'svm', 'lstm', 'bilstm', 'lgbm']:
+    for m in ['lr', 'svm', 'cnn', 'bilstm', 'lgbm']:
         if m in models:
             m_res = get_prediction(text, m)
-            type_str = 'Deep' if m in ['lstm', 'bilstm', 'lgbm'] else 'Classical'
+            type_str = 'Deep' if m in ['lstm', 'bilstm'] else 'Classical'
             all_models_res.append({
                 'name': m.upper(),
                 'type': type_str,
@@ -251,9 +253,9 @@ def get_confusion(model):
     cmap = {
         'lr': 'confusion_matrix_Logistic_Regression.png',
         'svm': 'confusion_matrix_SVM.png',
-        'lstm': 'confusion_matrix_LSTM.png',
+        'cnn': 'cm_cnn.png',
         'bilstm': 'confusion_matrix_BiLSTM.png',
-        'lgbm': 'confusion_matrix_CNN_LSTM.png'
+        'lgbm': 'confusion_matrix_LightGBM.png'
     }
     filename = cmap.get(model, f'cm_{model}.png')
     return send_from_directory(RESULTS_DIR, filename)
@@ -261,9 +263,8 @@ def get_confusion(model):
 @app.route('/history/<model>')
 def get_history(model):
     hmap = {
-        'lstm': 'history_lstm.png',
-        'bilstm': 'history_bilstm.png',
-        'lgbm': 'history_cnn_lstm.png'
+        'cnn': 'history_cnn.png',
+        'bilstm': 'history_bilstm.png'
     }
     filename = hmap.get(model, f'history_{model}.png')
     return send_from_directory(RESULTS_DIR, filename)
