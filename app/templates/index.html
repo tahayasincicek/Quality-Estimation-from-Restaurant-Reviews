@@ -14,7 +14,7 @@
         <button class="btn" data-model="svm">SVM</button>
         <button class="btn" data-model="cnn">TextCNN</button>
         <button class="btn" data-model="fasttext">FastText</button>
-        <button class="btn" data-model="mlp">MLP</button>
+        <button class="btn" data-model="sgd">SGD</button>
       </div>
     </div>
 
@@ -24,7 +24,9 @@
       <div class="input-footer">
         <div class="sample-links">
           Load sample: 
-          <a>Positive</a> &middot; <a>Neutral</a> &middot; <a>Negative</a>
+          <a>Positive</a> &middot; <a>Neutral</a> &middot; <a>Negative</a><br>
+          <span style="display:inline-block; margin-top:4px; color:var(--fg-muted);">Tricky samples:</span> 
+          <a>Sarcastic</a> &middot; <a>Mixed</a> &middot; <a>Negation</a>
         </div>
         <span class="char-count" id="char-count">0 characters</span>
       </div>

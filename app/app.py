@@ -46,7 +46,7 @@ vectorizer = None
 scaler = None
 tokenizer = None
 models_status = {
-    'lr': 'err', 'svm': 'err', 'cnn': 'err', 'fasttext': 'err', 'mlp': 'err'
+    'lr': 'err', 'svm': 'err', 'sgd': 'err', 'cnn': 'err', 'fasttext': 'err'
 }
 
 def load_resources():
@@ -76,9 +76,9 @@ def load_resources():
             models['fasttext'] = keras.models.load_model(os.path.join(MODELS_DIR, 'fasttext_model.h5'))
             models_status['fasttext'] = 'ok'
             
-        if os.path.exists(os.path.join(MODELS_DIR, 'lgbm_model.pkl')):
-            models['mlp'] = keras.models.load_model(os.path.join(MODELS_DIR, 'mlp_model.h5'))
-            models_status['mlp'] = 'ok'
+        if os.path.exists(os.path.join(MODELS_DIR, 'sgd_model.pkl')):
+            models['sgd'] = joblib.load(os.path.join(MODELS_DIR, 'sgd_model.pkl'))
+            models_status['sgd'] = 'ok'
             
     except Exception as e:
         print(f"Error loading models: {e}")
@@ -127,7 +127,7 @@ def get_prediction(text, model_name='lr'):
     pred_idx = 1
     conf_dict = {'poor': 0, 'average': 0, 'good': 0}
     
-    if model_name in ['lr', 'svm'] and vectorizer and scaler:
+    if model_name in ['lr', 'svm', 'sgd'] and vectorizer and scaler:
         tfidf_mat = vectorizer.transform([cleaned])
         
         # Simple top words based on tfidf
@@ -154,7 +154,7 @@ def get_prediction(text, model_name='lr'):
             # fake confidence
             conf_dict = {'poor': 100 if pred_idx==0 else 0, 'average': 100 if pred_idx==1 else 0, 'good': 100 if pred_idx==2 else 0}
             
-    elif model_name in ['cnn', 'fasttext', 'mlp'] and tokenizer:
+    elif model_name in ['cnn', 'fasttext'] and tokenizer:
         seq = tokenizer.texts_to_sequences([cleaned])
         padded = pad_sequences(seq, maxlen=200, padding='post', truncating='post')
         
@@ -211,10 +211,10 @@ def predict():
     
     # Run all models quickly for the "All Models" table
     all_models_res = []
-    for m in ['lr', 'svm', 'cnn', 'fasttext', 'mlp']:
+    for m in ['lr', 'svm', 'sgd', 'cnn', 'fasttext']:
         if m in models:
             m_res = get_prediction(text, m)
-            type_str = 'Deep' if m in ['cnn', 'fasttext', 'mlp'] else 'Classical'
+            type_str = 'Deep' if m in ['cnn', 'fasttext'] else 'Classical'
             all_models_res.append({
                 'name': m.upper(),
                 'type': type_str,
@@ -253,9 +253,9 @@ def get_confusion(model):
     cmap = {
         'lr': 'confusion_matrix_Logistic_Regression.png',
         'svm': 'confusion_matrix_SVM.png',
-        'cnn': 'cm_cnn.png',
-        'fasttext': 'confusion_matrix_FastText.png',
-        'mlp': 'cm_mlp.png'
+        'sgd': 'confusion_matrix_SGD.png',
+        'cnn': 'confusion_matrix_TextCNN.png',
+        'fasttext': 'confusion_matrix_FastText.png'
     }
     filename = cmap.get(model, f'cm_{model}.png')
     return send_from_directory(RESULTS_DIR, filename)

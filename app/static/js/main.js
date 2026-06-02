@@ -47,6 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (type === 'positive') txt.value = "The food was absolutely fantastic and the service was top notch. Highly recommended!";
       if (type === 'neutral') txt.value = "It was okay. The food was nothing special but the place was clean enough.";
       if (type === 'negative') txt.value = "Terrible experience. We waited an hour for cold food and the waiter was extremely rude.";
+      if (type === 'sarcastic') txt.value = "Oh brilliant! I absolutely loved waiting two hours for a cold, flavorless soup. Best experience of my life, truly a masterpiece of disaster.";
+      if (type === 'mixed') txt.value = "The food was completely raw and awful, but I honestly loved the live music and the waitstaff was incredibly sweet and fast.";
+      if (type === 'negation') txt.value = "I cannot say that the food was bad, and it wasn't the worst service either, but it definitely didn't fail to disappoint me today.";
       txt.dispatchEvent(new Event('input'));
     });
   });
