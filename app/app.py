@@ -46,7 +46,7 @@ vectorizer = None
 scaler = None
 tokenizer = None
 models_status = {
-    'lr': 'err', 'svm': 'err', 'cnn': 'err', 'bilstm': 'err', 'lgbm': 'err'
+    'lr': 'err', 'svm': 'err', 'cnn': 'err', 'fasttext': 'err', 'mlp': 'err'
 }
 
 def load_resources():
@@ -65,20 +65,20 @@ def load_resources():
             models_status['lr'] = 'ok'
             
         if os.path.exists(os.path.join(MODELS_DIR, 'svm_model.pkl')):
-            models['lstm'] = keras.models.load_model(os.path.join(MODELS_DIR, 'lstm_model.h5'))
-            models_status['lstm'] = 'ok'
+            models['svm'] = joblib.load(os.path.join(MODELS_DIR, 'svm_model.pkl'))
+            models_status['svm'] = 'ok'
             
         if os.path.exists(os.path.join(MODELS_DIR, 'cnn_model.h5')):
             models['cnn'] = keras.models.load_model(os.path.join(MODELS_DIR, 'cnn_model.h5'))
             models_status['cnn'] = 'ok'
             
-        if os.path.exists(os.path.join(MODELS_DIR, 'bilstm_model.h5')):
-            models['bilstm'] = keras.models.load_model(os.path.join(MODELS_DIR, 'bilstm_model.h5'))
-            models_status['bilstm'] = 'ok'
+        if os.path.exists(os.path.join(MODELS_DIR, 'fasttext_model.h5')):
+            models['fasttext'] = keras.models.load_model(os.path.join(MODELS_DIR, 'fasttext_model.h5'))
+            models_status['fasttext'] = 'ok'
             
         if os.path.exists(os.path.join(MODELS_DIR, 'lgbm_model.pkl')):
-            models['lgbm'] = joblib.load(os.path.join(MODELS_DIR, 'lgbm_model.pkl'))
-            models_status['lgbm'] = 'ok'
+            models['mlp'] = keras.models.load_model(os.path.join(MODELS_DIR, 'mlp_model.h5'))
+            models_status['mlp'] = 'ok'
             
     except Exception as e:
         print(f"Error loading models: {e}")
@@ -127,7 +127,7 @@ def get_prediction(text, model_name='lr'):
     pred_idx = 1
     conf_dict = {'poor': 0, 'average': 0, 'good': 0}
     
-    if model_name in ['lr', 'svm', 'lgbm'] and vectorizer and scaler:
+    if model_name in ['lr', 'svm'] and vectorizer and scaler:
         tfidf_mat = vectorizer.transform([cleaned])
         
         # Simple top words based on tfidf
@@ -154,7 +154,7 @@ def get_prediction(text, model_name='lr'):
             # fake confidence
             conf_dict = {'poor': 100 if pred_idx==0 else 0, 'average': 100 if pred_idx==1 else 0, 'good': 100 if pred_idx==2 else 0}
             
-    elif model_name in ['cnn', 'bilstm'] and tokenizer:
+    elif model_name in ['cnn', 'fasttext', 'mlp'] and tokenizer:
         seq = tokenizer.texts_to_sequences([cleaned])
         padded = pad_sequences(seq, maxlen=200, padding='post', truncating='post')
         
@@ -211,10 +211,10 @@ def predict():
     
     # Run all models quickly for the "All Models" table
     all_models_res = []
-    for m in ['lr', 'svm', 'cnn', 'bilstm', 'lgbm']:
+    for m in ['lr', 'svm', 'cnn', 'fasttext', 'mlp']:
         if m in models:
             m_res = get_prediction(text, m)
-            type_str = 'Deep' if m in ['lstm', 'bilstm'] else 'Classical'
+            type_str = 'Deep' if m in ['cnn', 'fasttext', 'mlp'] else 'Classical'
             all_models_res.append({
                 'name': m.upper(),
                 'type': type_str,
@@ -254,8 +254,8 @@ def get_confusion(model):
         'lr': 'confusion_matrix_Logistic_Regression.png',
         'svm': 'confusion_matrix_SVM.png',
         'cnn': 'cm_cnn.png',
-        'bilstm': 'confusion_matrix_BiLSTM.png',
-        'lgbm': 'confusion_matrix_LightGBM.png'
+        'fasttext': 'confusion_matrix_FastText.png',
+        'mlp': 'cm_mlp.png'
     }
     filename = cmap.get(model, f'cm_{model}.png')
     return send_from_directory(RESULTS_DIR, filename)
@@ -264,7 +264,7 @@ def get_confusion(model):
 def get_history(model):
     hmap = {
         'cnn': 'history_cnn.png',
-        'bilstm': 'history_bilstm.png'
+        'fasttext': 'history_fasttext.png'
     }
     filename = hmap.get(model, f'history_{model}.png')
     return send_from_directory(RESULTS_DIR, filename)
