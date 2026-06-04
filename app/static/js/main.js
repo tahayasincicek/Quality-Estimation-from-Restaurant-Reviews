@@ -2,10 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.lucide) lucide.createIcons();
 
   // ============================================
-  // SPA ROUTER (Sayfa Yenilenmeden Geçiş)
+  // SPA ROUTER
   // ============================================
   function initRouter() {
-    // Sadece sidebar linklerini seç
     const navLinks = document.querySelectorAll('.sidebar .nav-item');
     
     document.body.addEventListener('click', async (e) => {
@@ -14,10 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const url = link.getAttribute('href');
         
-        // Zaten o sayfadaysak bir şey yapma
         if (url === window.location.pathname) return; 
         
-        // Menüdeki 'active' sınıfını güncelle
         navLinks.forEach(n => n.classList.remove('active'));
         link.classList.add('active');
 
@@ -25,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Tarayıcı İleri/Geri Butonları
     window.addEventListener('popstate', async () => {
       navLinks.forEach(n => {
         n.classList.remove('active');
@@ -37,17 +33,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function navigateTo(url, push = true) {
     const mainContent = document.querySelector('.main-content');
-    mainContent.style.opacity = '0.5'; // Yükleniyor hissi
+    mainContent.style.opacity = '0.5';
 
     try {
       const response = await fetch(url);
-      if (!response.ok) throw new Error('Yükleme hatası');
+      if (!response.ok) throw new Error('Fetch error');
       const htmlText = await response.text();
       
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlText, 'text/html');
       
-      // Sadece main-content div'inin içeriğini değiştir
       const newMain = doc.querySelector('.main-content');
       
       if (newMain) {
@@ -56,14 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
           window.history.pushState({}, '', url);
         }
         
-        // Sayfa değiştiği için özellikleri tekrar başlat
         if (window.lucide) lucide.createIcons();
         initPageEvents();
       } else {
-        window.location.href = url; // Güvenlik ağı
+        window.location.href = url; 
       }
     } catch (error) {
-      console.error('Yönlendirme başarısız:', error);
+      console.error('Routing failed:', error);
       window.location.href = url; 
     } finally {
       mainContent.style.opacity = '1';
@@ -72,13 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // ============================================
-  // SAYFA OLAYLARI (Her sayfa değiştiğinde çağrılır)
+  // PAGE EVENTS (Called after every route change)
   // ============================================
   function initPageEvents() {
-    
-    // Helper translations
-    const tSentiment = (lbl) => lbl === 'Good' ? 'Olumlu' : (lbl === 'Poor' ? 'Olumsuz' : 'Nötr');
-    const tAspect = (asp) => asp === 'Food' ? 'Yemek' : (asp === 'Service' ? 'Servis' : (asp === 'Ambience' ? 'Atmosfer' : (asp === 'Price' ? 'Fiyat' : asp)));
 
     // Tabs
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -141,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const btnRandomReview = document.getElementById('btn-random-review');
       const statsSpan = document.getElementById('current-reviewer-stats');
       
-      // Butonun eski listener'larını temizlemek için klonla
       const newBtnRandom = btnRandomReview ? btnRandomReview.cloneNode(true) : null;
       if (newBtnRandom && btnRandomReview.parentNode) {
         btnRandomReview.parentNode.replaceChild(newBtnRandom, btnRandomReview);
@@ -297,7 +286,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Comparison Sorting
     const ths = document.querySelectorAll('.sortable');
     ths.forEach(th => {
-      // Clean clone to avoid duplicate listeners on re-init
       const newTh = th.cloneNode(true);
       if(th.parentNode) {
         th.parentNode.replaceChild(newTh, th);
@@ -392,7 +380,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('csv-file');
     if (dropZone && fileInput) {
-      // Events are easier to replace via clone
       const newDrop = dropZone.cloneNode(true);
       const newFile = fileInput.cloneNode(true);
       dropZone.parentNode.replaceChild(newDrop, dropZone);
@@ -525,7 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================
-  // BAŞLATMA
+  // INITIALIZATION
   // ============================================
   initRouter();
   initPageEvents();
