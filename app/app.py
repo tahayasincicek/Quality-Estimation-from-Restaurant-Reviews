@@ -9,6 +9,8 @@ import pandas as pd
 import joblib
 import scipy.sparse
 from textblob import TextBlob
+from sarcasm_detector import is_sarcastic
+from aspect_analyzer import analyze_aspects
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -32,7 +34,15 @@ try:
 except LookupError:
     nltk.download('wordnet', quiet=True)
 
-stop_words = set(stopwords.words('english'))
+negation_words = {'not', 'no', 'nor', 'neither', 'none', 'never', 'nothing', 'nowhere', 
+                  'hardly', 'scarcely', 'barely', 'doesn', "doesn't", 'isn', "isn't", 
+                  'wasn', "wasn't", 'shouldn', "shouldn't", 'wouldn', "wouldn't", 
+                  'couldn', "couldn't", 'won', "won't", 'can', "can't", 'don', "don't", 
+                  'didn', "didn't", 'hasn', "hasn't", 'haven', "haven't", 'hadn', "hadn't",
+                  'aren', "aren't", 'weren', "weren't", 'mightn', "mightn't", 'mustn', "mustn't",
+                  'isnt', 'wasnt', 'shouldnt', 'wouldnt', 'couldnt', 'wont', 'cant', 'dont',
+                  'didnt', 'hasnt', 'havent', 'hadnt', 'arent', 'werent', 'mightnt', 'mustnt'}
+stop_words = set(stopwords.words('english')) - negation_words
 lemmatizer = WordNetLemmatizer()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -109,7 +119,24 @@ def clean_text(text):
     words = [lemmatizer.lemmatize(w) for w in words if w not in stop_words]
     return " ".join(words)
 
+def handle_negations(text):
+    text = re.sub(r"n't", " not", text, flags=re.IGNORECASE)
+    antonyms = {
+        "bad": "good", "cold": "warm", "terrible": "great",
+        "poor": "excellent", "slow": "fast", "expensive": "cheap",
+        "dirty": "clean", "awful": "wonderful", "horrible": "fantastic",
+        "disgusting": "delicious", "bland": "tasty", "rude": "polite",
+        "hard": "easy", "small": "large"
+    }
+    for word, ant in antonyms.items():
+        pattern = r"\b(not|no|never)\s+" + word + r"\b"
+        text = re.sub(pattern, ant, text, flags=re.IGNORECASE)
+    return text
+
 def get_prediction(text, model_name='lr'):
+    sarcastic_flag = is_sarcastic(text)
+    aspect_insights = analyze_aspects(text)
+    text = handle_negations(text)
     start_t = time.time()
     
     num_feats = extract_features(text)
@@ -174,7 +201,9 @@ def get_prediction(text, model_name='lr'):
         'confidence': conf_dict,
         'top_words': top_words,
         'stats': stats,
-        'elapsed_ms': elapsed
+        'elapsed_ms': elapsed,
+        'is_sarcastic': sarcastic_flag,
+        'aspect_insights': aspect_insights
     }
 
 @app.route('/')
@@ -202,12 +231,18 @@ def predict():
     data = request.json
     text = data.get('text', '')
     model_name = data.get('model_name', 'lr')
+    useful_votes = data.get('useful_votes', None)
     if not text:
         return jsonify({'error': 'No text provided'})
     if model_name not in models:
         return jsonify({'error': 'Model not loaded'})
         
     res = get_prediction(text, model_name)
+    
+    from reviewer_profiler import analyze_reviewer_profile
+    profile = analyze_reviewer_profile(useful_votes, res['label'], res['confidence'])
+    if profile:
+        res['reviewer_profile'] = profile
     
     # Run all models quickly for the "All Models" table
     all_models_res = []
@@ -278,6 +313,17 @@ def get_eda(chart):
     }
     filename = emap.get(chart, f'{chart}.png')
     return send_from_directory(RESULTS_DIR, filename)
+
+@app.route('/random_dataset_review')
+def random_dataset_review():
+    import random
+    import json
+    sample_path = os.path.join(PROJECT_ROOT, 'data', 'sample_reviews.json')
+    if os.path.exists(sample_path):
+        with open(sample_path, 'r', encoding='utf-8') as f:
+            records = json.load(f)
+        return jsonify(random.choice(records))
+    return jsonify({'error': 'Sample dataset not found'})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

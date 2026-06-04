@@ -72,13 +72,13 @@
       <button class="btn" data-model="sgd">SGD</button>
     </div>
     <div>
-      <img id="cm-img" src="/confusion/lr" style="max-width: 500px; width: 100%; border: 1px solid var(--border); border-radius: 6px;">
+      <img id="cm-img" src="/confusion/lr" style="max-width: 100%; width: 100%; border: 1px solid var(--border); border-radius: 6px;">
     </div>
   </div>
   <div id="tab-roc" class="tab-pane">
-    <div class="grid-2">
-      <img src="/eda_img/roc_curves" style="width:100%; border:1px solid var(--border); border-radius:6px;">
-      <img src="/eda_img/pr_curves" style="width:100%; border:1px solid var(--border); border-radius:6px;">
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <img src="/eda_img/roc_curves" style="width:100%; max-width: 100%; border:1px solid var(--border); border-radius:6px;">
+      <img src="/eda_img/pr_curves" style="width:100%; max-width: 100%; border:1px solid var(--border); border-radius:6px;">
     </div>
   </div>
   <div id="tab-train" class="tab-pane">
@@ -87,7 +87,7 @@
       <button class="btn" data-model="fasttext">FastText</button>
     </div>
     <div>
-      <img id="hist-img" src="/history/cnn" style="max-width: 600px; width: 100%; border: 1px solid var(--border); border-radius: 6px;">
+      <img id="hist-img" src="/history/cnn" style="max-width: 100%; width: 100%; border: 1px solid var(--border); border-radius: 6px;">
     </div>
   </div>
 </div>
