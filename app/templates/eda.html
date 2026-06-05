@@ -1,6 +1,20 @@
 {% extends "base.html" %}
 {% block title %}EDA - ReviewSentiment{% endblock %}
 {% block content %}
+<style>
+.single-img-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+.single-img {
+    max-width: 600px;
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+</style>
 <h1 class="page-title">Data Analysis</h1>
 <p class="page-desc">Exploratory Data Analysis of the Yelp Restaurant Reviews dataset.</p>
 
@@ -36,39 +50,50 @@
 
 <div class="tab-content">
   <div id="tab-dist" class="tab-pane active">
-    <div class="grid-2">
-      <img src="/eda_img/eda_class_distribution" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
-      <img src="/eda_img/eda_star_distribution" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
-      <img src="/eda_img/eda_review_length" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
-      <img src="/eda_img/eda_word_count" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+    <div class="single-img-container">
+      <img src="/eda_img/eda_class_distribution" class="single-img" loading="lazy">
+      <img src="/eda_img/eda_star_distribution" class="single-img" loading="lazy">
+      <img src="/eda_img/eda_review_length" class="single-img" loading="lazy">
+      <img src="/eda_img/eda_word_count" class="single-img" loading="lazy">
     </div>
   </div>
   
   <div id="tab-words" class="tab-pane">
     <div class="btn-group mb-16" id="wc-btns">
-      <button class="btn active" data-class="kotu">Poor</button>
-      <button class="btn" data-class="orta">Average</button>
-      <button class="btn" data-class="iyi">Good</button>
+      <button class="btn active" data-class="kotu">Poor (Kötü)</button>
+      <button class="btn" data-class="orta">Average (Orta)</button>
+      <button class="btn" data-class="iyi">Good (İyi)</button>
     </div>
-    <div class="mb-24">
-      <img id="wc-img" src="/eda_img/eda_wordcloud_kotu" style="max-width:600px; width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
-    </div>
-    <div class="section-label">Top Words & Bigrams</div>
-    <div class="grid-2">
-      <img src="/eda_img/eda_top_words" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
-      <img src="/eda_img/eda_bigrams" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+    
+    <div class="single-img-container mb-24">
+      <div style="text-align: center; width: 100%;">
+        <h3>WordCloud</h3>
+        <img id="wc-img" src="/eda_img/eda_wordcloud_kotu" class="single-img" loading="lazy">
+      </div>
+      
+      <div style="text-align: center; width: 100%;">
+        <h3>Top 20 Words</h3>
+        <img id="tw-img" src="/eda_img/eda_top_words_bad" class="single-img" loading="lazy">
+      </div>
+      
+      <div style="text-align: center; width: 100%;">
+        <h3>Top 10 Bigrams</h3>
+        <img id="bg-img" src="/eda_img/eda_bigrams_bad" class="single-img" loading="lazy">
+      </div>
     </div>
   </div>
 
   <div id="tab-stat" class="tab-pane">
-    <div class="grid-2">
-      <img src="/eda_img/eda_social_features" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
-      <img src="/eda_img/eda_length_vs_stars" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+    <div class="single-img-container">
+      <img src="/eda_img/eda_social_features" class="single-img" loading="lazy">
+      <img src="/eda_img/eda_length_vs_stars" class="single-img" loading="lazy">
     </div>
   </div>
 
   <div id="tab-time" class="tab-pane">
-    <img src="/eda_img/eda_time_trend" style="width:100%; border:1px solid var(--border); border-radius:6px;" loading="lazy">
+    <div class="single-img-container">
+      <img src="/eda_img/eda_time_trend" class="single-img" loading="lazy">
+    </div>
   </div>
 </div>
 
@@ -76,9 +101,28 @@
 document.addEventListener('DOMContentLoaded', () => {
   const wcBtns = document.querySelectorAll('#wc-btns .btn');
   const wcImg = document.getElementById('wc-img');
+  const twImg = document.getElementById('tw-img');
+  const bgImg = document.getElementById('bg-img');
+  
+  const mapSuffix = {
+      'kotu': 'bad',
+      'orta': 'middle',
+      'iyi': 'good'
+  };
+
   wcBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      wcImg.src = `/eda_img/eda_wordcloud_${btn.getAttribute('data-class')}`;
+      // Remove active from all
+      wcBtns.forEach(b => b.classList.remove('active'));
+      // Add active to clicked
+      btn.classList.add('active');
+      
+      const trClass = btn.getAttribute('data-class');
+      const enClass = mapSuffix[trClass];
+      
+      wcImg.src = `/eda_img/eda_wordcloud_${trClass}`;
+      twImg.src = `/eda_img/eda_top_words_${enClass}`;
+      bgImg.src = `/eda_img/eda_bigrams_${enClass}`;
     });
   });
 });
