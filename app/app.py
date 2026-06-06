@@ -351,12 +351,8 @@ def get_history(model):
 
 @app.route('/eda_img/<chart>')
 def get_eda(chart):
-    emap = {
-        'roc_curves': 'roc_curves_all.png',
-        'pr_curves': 'pr_curves_all.png',
-        'eda_wordcloud_kotu': 'eda_wordcloud_kotü.png'
-    }
-    filename = emap.get(chart, f'{chart}.png')
+    # No longer needed as we serve exact names
+    filename = f'{chart}.png'
     return send_from_directory(RESULTS_DIR, filename)
 
 @app.route('/random_dataset_review')
