@@ -19,8 +19,10 @@ os.environ["KERAS_BACKEND"] = "torch"
 import keras
 from keras.utils import pad_sequences
 import tensorflow as tf
+import torch
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import warnings
 warnings.filterwarnings('ignore')
-
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
@@ -56,7 +58,7 @@ vectorizer = None
 scaler = None
 tokenizer = None
 models_status = {
-    'lr': 'err', 'svm': 'err', 'sgd': 'err', 'cnn': 'err', 'fasttext': 'err'
+    'lr': 'err', 'svm': 'err', 'sgd': 'err', 'cnn': 'err', 'fasttext': 'err', 'bert': 'err'
 }
 
 def load_resources():
@@ -90,6 +92,14 @@ def load_resources():
             models['sgd'] = joblib.load(os.path.join(MODELS_DIR, 'sgd_model.pkl'))
             models_status['sgd'] = 'ok'
             
+        # Load BERT
+        bert_dir = os.path.join(MODELS_DIR, 'distilbert_sentiment_model')
+        if os.path.exists(bert_dir):
+            models['bert_tokenizer'] = AutoTokenizer.from_pretrained(bert_dir)
+            models['bert'] = AutoModelForSequenceClassification.from_pretrained(bert_dir)
+            models['bert'].eval() # Evaluation mode
+            models_status['bert'] = 'ok'
+            
     except Exception as e:
         print(f"Error loading models: {e}")
 
@@ -119,6 +129,21 @@ def clean_text(text):
     words = [lemmatizer.lemmatize(w) for w in words if w not in stop_words]
     return " ".join(words)
 
+def clean_text_dl(text):
+    # Derin Öğrenme modelleri (CNN, FastText) için lemmatization yapılmamalıdır.
+    text = text.lower()
+    text = re.sub(r'<.*?>', '', text)
+    text = re.sub(r'http\S+|www\S+', '', text)
+    text = re.sub(r'[^a-z\s]', '', text)
+    return text.strip()
+
+def clean_text_bert(text):
+    # BERT için lemmatization ve noktalama silme işlemi yapılmamalıdır.
+    # Cased (büyük/küçük harf duyarlı) model olduğu için lower() da yapılmaz.
+    text = re.sub(r'<.*?>', '', text)
+    text = re.sub(r'http\S+|www\S+', '', text)
+    return text.strip()
+
 def handle_negations(text):
     text = re.sub(r"n't", " not", text, flags=re.IGNORECASE)
     antonyms = {
@@ -140,7 +165,10 @@ def get_prediction(text, model_name='lr'):
     start_t = time.time()
     
     num_feats = extract_features(text)
-    cleaned = clean_text(text)
+    num_feats = extract_features(text)
+    cleaned = clean_text(text) # TF-IDF (Geleneksel) için lemmatize edilmiş metin
+    cleaned_dl = clean_text_dl(text) # Derin Öğrenme (CNN, FastText) için lemmatize EDİLMEMİŞ metin
+    cleaned_bert = clean_text_bert(text) # BERT için ham (lemmatize EDİLMEMİŞ) metin
     
     tb = TextBlob(text)
     stats = {
@@ -182,13 +210,25 @@ def get_prediction(text, model_name='lr'):
             conf_dict = {'poor': 100 if pred_idx==0 else 0, 'average': 100 if pred_idx==1 else 0, 'good': 100 if pred_idx==2 else 0}
             
     elif model_name in ['cnn', 'fasttext'] and tokenizer:
-        seq = tokenizer.texts_to_sequences([cleaned])
+        seq = tokenizer.texts_to_sequences([cleaned_dl])
         padded = pad_sequences(seq, maxlen=200, padding='post', truncating='post')
         
         model = models[model_name]
         probs = model.predict(padded, verbose=0)[0]
         pred_idx = np.argmax(probs)
         conf_dict = {'poor': float(probs[0]*100), 'average': float(probs[1]*100), 'good': float(probs[2]*100)}
+        
+    elif model_name == 'bert' and 'bert' in models and 'bert_tokenizer' in models:
+        # BERT için özel olarak lemmatize edilmemiş raw metni kullanıyoruz
+        inputs = models['bert_tokenizer'](cleaned_bert, return_tensors="pt", padding=True, truncation=True, max_length=128)
+        with torch.no_grad():
+            outputs = models['bert'](**inputs)
+            logits = outputs.logits
+            probs = torch.nn.functional.softmax(logits, dim=-1).squeeze().tolist()
+            if isinstance(probs, float):
+                probs = [probs]
+            pred_idx = np.argmax(probs)
+            conf_dict = {'poor': float(probs[0]*100), 'average': float(probs[1]*100), 'good': float(probs[2]*100)}
         
     labels = {0: 'Poor', 1: 'Average', 2: 'Good'}
     label = labels.get(pred_idx, 'Average')
@@ -246,10 +286,15 @@ def predict():
     
     # Run all models quickly for the "All Models" table
     all_models_res = []
-    for m in ['lr', 'svm', 'sgd', 'cnn', 'fasttext']:
+    for m in ['lr', 'svm', 'sgd', 'cnn', 'fasttext', 'bert']:
         if m in models:
             m_res = get_prediction(text, m)
-            type_str = 'Deep' if m in ['cnn', 'fasttext'] else 'Classical'
+            if m == 'bert':
+                type_str = 'Transformer'
+            elif m in ['cnn', 'fasttext']:
+                type_str = 'Deep'
+            else:
+                type_str = 'Classical'
             all_models_res.append({
                 'name': m.upper(),
                 'type': type_str,

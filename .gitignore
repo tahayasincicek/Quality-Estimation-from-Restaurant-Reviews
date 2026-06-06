@@ -3,9 +3,16 @@ models/
 features/
 results/
 *.csv
+data/
+models/
+features/
+results/
+*.csv
 *.json
 __pycache__/
 .ipynb_checkpoints/
 Yelp JSON/
 Yelp-JSON.zip
 desktop.ini
+bert_results/  
+ 

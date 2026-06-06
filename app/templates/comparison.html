@@ -7,17 +7,17 @@
 <div class="stat-row">
   <div class="stat-cell">
     <div class="stat-label">Best Model</div>
-    <div class="stat-value">Logistic Reg.</div>
+    <div class="stat-value">BERT</div>
     <div class="stat-sub">By overall F1-score</div>
   </div>
   <div class="stat-cell">
     <div class="stat-label">Highest F1</div>
-    <div class="stat-value">0.798</div>
+    <div class="stat-value">0.864</div>
     <div class="stat-sub">Macro average</div>
   </div>
   <div class="stat-cell">
     <div class="stat-label">Best Accuracy</div>
-    <div class="stat-value">80.0%</div>
+    <div class="stat-value">86.5%</div>
     <div class="stat-sub">On 15% unseen test set</div>
   </div>
   <div class="stat-cell">
@@ -40,7 +40,8 @@
     </tr>
   </thead>
   <tbody>
-    <tr><td class="strong">Logistic Regression</td><td class="strong">0.800</td><td class="strong">0.798</td><td class="strong">0.797</td><td class="strong">0.798</td></tr>
+    <tr><td class="strong">BERT (DistilBERT)</td><td class="strong">0.865</td><td class="strong">0.864</td><td class="strong">0.863</td><td class="strong">0.864</td></tr>
+    <tr><td>Logistic Regression</td><td>0.800</td><td>0.798</td><td>0.797</td><td>0.798</td></tr>
     <tr><td>SVM</td><td>0.795</td><td>0.793</td><td>0.791</td><td>0.793</td></tr>
     <tr><td>TextCNN</td><td>0.781</td><td>0.782</td><td>0.780</td><td>0.781</td></tr>
     <tr><td>FastText</td><td>0.740</td><td>0.739</td><td>0.738</td><td>0.738</td></tr>
@@ -95,12 +96,13 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   if (window.drawGroupedBar && window.drawRadar) {
-    const models = ['LR', 'SVM', 'SGD', 'TextCNN', 'FastText'];
-    const acc = [0.800, 0.795, 0.764, 0.740, 0.715];
-    const f1 = [0.798, 0.793, 0.767, 0.738, 0.707];
+    const models = ['BERT', 'LR', 'SVM', 'SGD', 'TextCNN', 'FastText'];
+    const acc = [0.865, 0.800, 0.795, 0.764, 0.740, 0.715];
+    const f1 = [0.864, 0.798, 0.793, 0.767, 0.738, 0.707];
     drawGroupedBar('metrics-chart', models, [acc, f1], ['Accuracy', 'F1 Score']);
     
     drawRadar('radar-chart', ['Accuracy', 'Precision', 'Recall', 'F1 Score'], [
+      [0.865, 0.864, 0.863, 0.864],
       [0.800, 0.798, 0.797, 0.798],
       [0.795, 0.793, 0.791, 0.793],
       [0.764, 0.768, 0.765, 0.767],
