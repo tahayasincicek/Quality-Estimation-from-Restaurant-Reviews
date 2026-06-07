@@ -10,11 +10,39 @@ except LookupError:
 
 # Dictionary of aspect keywords
 aspect_keywords = {
-    'Food': ['food', 'meal', 'delicious', 'taste', 'chicken', 'meat', 'burger', 'pizza', 'cold', 'hot', 'fresh', 'tasty', 'flavor'],
+    'Food': ['food', 'meal', 'delicious', 'taste', 'chicken', 'meat', 'burger', 'pizza', 'soup', 'cold', 'hot', 'fresh', 'tasty', 'flavor'],
     'Service': ['service', 'waiter', 'staff', 'manager', 'rude', 'friendly', 'slow', 'fast', 'wait', 'hour', 'minutes', 'table'],
     'Ambience': ['place', 'atmosphere', 'vibe', 'clean', 'dirty', 'loud', 'quiet', 'music', 'environment', 'decor'],
     'Price': ['price', 'cost', 'expensive', 'cheap', 'worth', 'value', 'bill', 'money', 'pay']
 }
+
+SPLIT_PATTERN = re.compile(
+    r"\s*(?:[,;]|\b(?:but|however|although|though|yet|whereas)\b)\s*",
+    flags=re.IGNORECASE,
+)
+
+SENTENCE_FALLBACK_PATTERN = re.compile(r"[^.!?]+(?:[.!?]+|$)")
+
+
+def split_opinion_units(text):
+    """
+    Split a review into short clauses that usually contain one opinion target.
+    This keeps mixed input like "service is bad, soup is delicious" from giving
+    both aspects the same sentence-level sentiment.
+    """
+    try:
+        sentences = sent_tokenize(text)
+    except LookupError:
+        sentences = [m.group(0).strip() for m in SENTENCE_FALLBACK_PATTERN.finditer(text)]
+
+    units = []
+    for sentence in sentences:
+        for unit in SPLIT_PATTERN.split(sentence):
+            unit = unit.strip()
+            if unit:
+                units.append(unit)
+
+    return units or [text.strip()] if text.strip() else []
 
 def get_aspects_from_sentence(sentence):
     """Identify which aspects are mentioned in a single sentence."""
@@ -25,9 +53,9 @@ def get_aspects_from_sentence(sentence):
             detected_aspects.append(aspect)
     return detected_aspects
 
-def get_sentence_sentiment(sentence):
-    """Determine sentiment of a sentence using TextBlob polarity."""
-    blob = TextBlob(sentence)
+def get_unit_sentiment(unit):
+    """Determine sentiment of an opinion unit using TextBlob polarity."""
+    blob = TextBlob(unit)
     polarity = blob.sentiment.polarity
     if polarity > 0.1:
         return 'Good'
@@ -38,10 +66,10 @@ def get_sentence_sentiment(sentence):
 
 def analyze_aspects(text):
     """
-    Splits text into sentences, finds aspects, and determines sentiment per aspect.
+    Splits text into opinion units, finds aspects, and determines sentiment per aspect.
     Returns a dictionary grouping aspects by their sentiments.
     """
-    sentences = sent_tokenize(text)
+    units = split_opinion_units(text)
     
     aspect_results = {
         'Food': [],
@@ -50,12 +78,12 @@ def analyze_aspects(text):
         'Price': []
     }
     
-    for sentence in sentences:
-        aspects = get_aspects_from_sentence(sentence)
+    for unit in units:
+        aspects = get_aspects_from_sentence(unit)
         if aspects:
-            sentiment = get_sentence_sentiment(sentence)
+            sentiment = get_unit_sentiment(unit)
             for aspect in aspects:
-                aspect_results[aspect].append({'sentence': sentence, 'sentiment': sentiment})
+                aspect_results[aspect].append({'sentence': unit, 'sentiment': sentiment})
                 
     # Aggregate sentiments
     final_insights = []

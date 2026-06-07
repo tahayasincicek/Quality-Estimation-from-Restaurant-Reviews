@@ -189,6 +189,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (type === 'sarcastic') txt.value = "Oh brilliant! I absolutely loved waiting two hours for a cold, flavorless soup. Best experience of my life, truly a masterpiece of disaster.";
         if (type === 'mixed') txt.value = "The food was completely raw and awful, but I honestly loved the live music and the waitstaff was incredibly sweet and fast.";
         if (type === 'negation') txt.value = "I cannot say that the food was bad, and it wasn't the worst service either, but it definitely didn't fail to disappoint me today.";
+        const usefulVotesInput = document.getElementById('useful-votes-input');
+        const statsSpan = document.getElementById('current-reviewer-stats');
+        if (usefulVotesInput) usefulVotesInput.value = '';
+        if (statsSpan) statsSpan.style.display = 'none';
         txt.dispatchEvent(new Event('input'));
       });
     });
@@ -196,10 +200,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Predict
     const btnAnalyze = document.getElementById('btn-analyze');
     if (btnAnalyze) {
-      let datasetUsefulVotes = null;
-
       const btnRandomReview = document.getElementById('btn-random-review');
       const statsSpan = document.getElementById('current-reviewer-stats');
+      const usefulVotesInput = document.getElementById('useful-votes-input');
       
       const newBtnRandom = btnRandomReview ? btnRandomReview.cloneNode(true) : null;
       if (newBtnRandom && btnRandomReview.parentNode) {
@@ -214,7 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 txtInput.value = data.text;
                 txtInput.dispatchEvent(new Event('input'));
               }
-              datasetUsefulVotes = data.useful;
+              if (usefulVotesInput) {
+                usefulVotesInput.value = Number.isFinite(Number(data.useful)) ? String(data.useful) : '';
+              }
               if(statsSpan) {
                 statsSpan.style.display = 'inline';
                 statsSpan.textContent = `Review 'Useful' Votes: ${data.useful}`;
@@ -239,6 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           
           const modelName = getActiveModel('#model-select', 'lr');
+          const usefulVotesRaw = usefulVotesInput ? usefulVotesInput.value.trim() : '';
+          const usefulVotes = usefulVotesRaw === '' ? null : Number.parseInt(usefulVotesRaw, 10);
 
           const originalHtml = newBtnAnalyze.innerHTML;
           newBtnAnalyze.disabled = true;
@@ -249,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/predict', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ text: txt, model_name: modelName, useful_votes: datasetUsefulVotes })
+              body: JSON.stringify({ text: txt, model_name: modelName, useful_votes: Number.isNaN(usefulVotes) ? null : usefulVotes })
             });
             const data = await res.json();
             

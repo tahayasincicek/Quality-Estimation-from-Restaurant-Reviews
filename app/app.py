@@ -98,7 +98,11 @@ def load_resources():
         bert_dir = os.path.join(MODELS_DIR, 'distilbert_sentiment_model')
         if os.path.exists(bert_dir):
             models['bert_tokenizer'] = AutoTokenizer.from_pretrained(bert_dir)
-            models['bert'] = AutoModelForSequenceClassification.from_pretrained(bert_dir)
+            pytorch_weights = os.path.join(bert_dir, 'pytorch_model.bin')
+            if os.path.exists(pytorch_weights):
+                models['bert'] = AutoModelForSequenceClassification.from_pretrained(bert_dir, use_safetensors=False)
+            else:
+                models['bert'] = AutoModelForSequenceClassification.from_pretrained(bert_dir)
             models['bert'].eval() # Evaluation mode
             models_status['bert'] = 'ok'
             

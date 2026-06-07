@@ -346,6 +346,12 @@ input:focus, textarea:focus, select:focus {
   margin-bottom: 6px;
 }
 .form-group { margin-bottom: 28px; }
+.compact-group {
+  margin-bottom: 18px;
+}
+.compact-group input {
+  max-width: 220px;
+}
 .input-footer {
   display: flex;
   justify-content: space-between;
@@ -870,3 +876,10 @@ code {
   to { transform: rotate(360deg); }
 }
 .spin { animation: spin 0.7s linear infinite; }
+
+/* Sharp UI corners */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+}
