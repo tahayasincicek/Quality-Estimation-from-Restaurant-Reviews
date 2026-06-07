@@ -1,28 +1,78 @@
-# Quality Estimation from Restaurant Reviews (Yelp Dataset)
+# Restaurant Review Quality Mining with Yelp
 
 ![Python](https://img.shields.io/badge/Python-3.13-blue.svg)
-![TensorFlow](https://img.shields.io/badge/TensorFlow-2.20+-orange.svg)
 ![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.5+-yellow.svg)
-![LightGBM](https://img.shields.io/badge/LightGBM-4.6+-green.svg)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.20+-orange.svg)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.3+-red.svg)
+![Transformers](https://img.shields.io/badge/HuggingFace-Transformers-yellow.svg)
 ![Flask](https://img.shields.io/badge/Flask-Web_App-black.svg)
 
-## Project Overview
-This project aims to predict the quality/sentiment rating of restaurant experiences (Good, Neutral, Bad) strictly from the textual content of user reviews. Utilizing a massive subset of the **Yelp Open Dataset (~1.6 Million reviews)**, we process raw text into numerical features using advanced Natural Language Processing (NLP) techniques and train both traditional Machine Learning and deep Neural Network architectures from scratch.
+This project is a full text-mining pipeline for restaurant review quality prediction on the Yelp Open Dataset. It covers data preparation, exploratory analysis, preprocessing, feature extraction, model training, model evaluation, explainability, aspect-based sentiment analysis, DistilBERT fine-tuning, and a Flask web application for interactive inference.
 
-A full **Flask Web Application** is included, providing an elegant and modern user interface to interact with the models via single text input, bulk CSV upload, and detailed exploratory data analysis.
+The main prediction task is 3-class review quality classification:
 
-## Technology Stack
-* **Language:** Python 3.13
-* **Data Processing:** Pandas, NumPy, SciPy
-* **NLP & Text Mining:** NLTK, TextBlob, TF-IDF
-* **Machine Learning:** Scikit-learn (Logistic Regression, SVM), LightGBM
-* **Deep Learning:** TensorFlow & Keras (LSTM, BiLSTM)
-* **Web Backend:** Flask
-* **Visualization:** Matplotlib, Seaborn, Plotly
+- `0` Poor / Bad
+- `1` Average / Neutral
+- `2` Good
 
-## Reproducible Setup
+## Project Scope
 
-Create a virtual environment and install the project dependencies:
+The project includes:
+
+- Yelp restaurant review filtering and class balancing.
+- Exploratory data analysis with class distributions, length analysis, time trends, word clouds, top words, bigrams, and correlation plots.
+- Leakage-safe train/validation/test splitting before feature fitting.
+- TF-IDF word features, optional character TF-IDF, numeric text features, scaling, and Keras sequence tokenization.
+- Classical ML models: Logistic Regression, Linear SVM, SGD Classifier, and LightGBM.
+- Deep learning models: TextCNN, FastText-style model, LSTM, BiLSTM, CNN-LSTM, and MLP artifacts.
+- Transformer model: DistilBERT fine-tuned on a hardware-friendly subset and evaluated on the official test split.
+- Model evaluation with confusion matrices, ROC curves, PR curves, training histories, radar/bar comparisons, error analysis, and feature ablation.
+- LIME explanation output for local interpretability.
+- Rule-based ABSA for food, service, ambience, and price dimensions.
+- Flask web app with single-review analysis, all-model comparison, bulk CSV prediction, EDA pages, sarcasm detection, reviewer useful-vote profiling, and text decoding helpers.
+
+## Repository Layout
+
+```text
+.
+|-- 01_data_preparation.ipynb
+|-- 02_eda.ipynb
+|-- 03_text_preprocessing.ipynb
+|-- 04_feature_extraction.ipynb
+|-- 05_model_training.ipynb
+|-- 06_model_evaluation.ipynb
+|-- 07_aspect_based_sentiment.ipynb
+|-- 08_bert_model.ipynb
+|-- app/
+|   |-- app.py
+|   |-- aspect_analyzer.py
+|   |-- reviewer_profiler.py
+|   |-- sarcasm_detector.py
+|   |-- text_decoder.py
+|   |-- templates/
+|   `-- static/
+|-- report/
+|   |-- main.tex
+|   `-- figures/
+|-- requirements.txt
+`-- README.md
+```
+
+Large generated artifacts are intentionally ignored by Git:
+
+- `data/`
+- `features/`
+- `models/`
+- `results/`
+- `bert_results/`
+- `Yelp JSON/`
+- `Yelp-JSON.zip`
+
+Run the notebooks in order to regenerate them.
+
+## Setup
+
+Create and activate a virtual environment:
 
 ```bash
 python -m venv .venv
@@ -30,51 +80,153 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Run the notebooks in order from `01_data_preparation.ipynb` through `08_bert_model.ipynb`. `04_feature_extraction.ipynb` creates the official train/validation/test indices before fitting TF-IDF, numeric scaling, or tokenization. Vectorizers and scalers are fit only on the training split, then validation/test rows are transformed with those fitted objects.
+The project was developed with Python 3.13. Some ML libraries may be easier to install on Python 3.11 or 3.12 depending on the local machine, CUDA setup, and wheel availability.
 
-## Model Architectures
-We designed and trained multiple models to evaluate sparse representations, dense sequence models, and a Transformer baseline:
-1. **Logistic Regression (Baseline):** Trained on TF-IDF sparse matrices.
-2. **Support Vector Machine (LinearSVC):** Calibrated SVC on TF-IDF.
-3. **LightGBM:** Gradient Boosting framework on TF-IDF.
-4. **SGD Classifier:** Linear large-scale baseline on TF-IDF.
-5. **TextCNN / FastText:** Neural sequence baselines trained on padded token sequences.
-6. **LSTM / BiLSTM:** Recurrent neural sequence models.
-7. **DistilBERT:** Transformer model fine-tuned on a hardware-friendly subset of the official training split and evaluated on the official test split.
+## Data
 
-*(Note: Deep Learning models were trained on subsets to optimize CPU training times, whereas classical ML models and LightGBM digested the entire 1.14M training corpus).*
+The pipeline expects the Yelp Open Dataset files locally. The raw dataset is not committed because it is large.
 
-## Key Results & Metrics
-Evaluated on a completely unseen test set, distinguishing between 3 highly subjective classes:
-* **0 (Bad / Kötü)**
-* **1 (Neutral / Orta)**
-* **2 (Good / İyi)**
+Typical source layout:
 
-The best classical models reach around **80% accuracy/F1** on a subjective 3-class NLP task. Logistic Regression, SVM, and LightGBM are strong classical baselines; DistilBERT is evaluated with the same official test indices.
+```text
+Yelp JSON/
+└── yelp_academic_dataset_review.json
+```
 
-## Project Structure (Pipeline)
+`01_data_preparation.ipynb` filters restaurant reviews, maps star ratings into the 3 target classes, balances the dataset, and writes prepared data under `data/`.
 
-The project is heavily modularized into 7 sequential Jupyter Notebooks and a Web Application:
+## Notebook Pipeline
 
-* `01_data_preparation.ipynb` : Data ingestion, filtering for "Restaurants", and undersampling to balance classes.
-* `02_eda.ipynb` : Exploratory Data Analysis, n-gram generation, and word clouds.
-* `03_text_preprocessing.ipynb` : Text cleaning, lemmatization, stopword removal, and text-based feature engineering (TextBlob polarity).
+Run notebooks in this order:
 
-* `04_feature_extraction.ipynb` : Leakage-safe split creation, TF-IDF vectorization, numeric scaling, and Keras Tokenizer sequence padding.
-* `05_model_training.ipynb` : Model architecture definitions and training across all algorithms.
-* `06_model_evaluation.ipynb` : Multi-model comparison, ROC curves, Precision-Recall curves, Radar charts, Confusion Matrices.
-* `07_aspect_based_sentiment.ipynb` : Aspect-Based Sentiment Analysis (ABSA) for identifying specific features (food, service, price, etc.) and their polarities.
-* `app/` : Contains the Flask backend (`app.py`), static assets (CSS/JS), and modern HTML templates for the Web UI.
+1. `01_data_preparation.ipynb`
+   - Loads Yelp review data.
+   - Filters and balances classes.
+   - Creates the prepared review dataset.
 
-## Web Interface Features
-- **Real-time Prediction:** Compare how different models (LightGBM, SVM, LR) predict the sentiment of your live text input.
-- **Bulk Analysis:** Upload a CSV of reviews and get detailed charts predicting the overall sentiment distribution.
-- **EDA Dashboards:** Beautiful, interactive graphs showing word clouds, n-grams, and class distributions from the Yelp dataset.
+2. `02_eda.ipynb`
+   - Produces class distribution, review length, word count, time trend, top-word, bigram, word-cloud, and statistical EDA outputs.
 
-### Web App Screenshots
+3. `03_text_preprocessing.ipynb`
+   - Cleans text.
+   - Preserves negation words.
+   - Applies tokenization, lemmatization, and text feature engineering.
 
-**Real-Time Prediction Interface**
-![Analyze Screen](report/figures/webapp_analyze.png)
+4. `04_feature_extraction.ipynb`
+   - Creates official train/validation/test indices.
+   - Fits TF-IDF, scaler, and tokenizer only on the training split.
+   - Saves feature artifacts under `features/` and reusable preprocessing artifacts under `models/`.
 
-**Model Comparison Interface**
-![Comparison Screen](report/figures/webapp_compare.png)
+5. `05_model_training.ipynb`
+   - Trains classical ML models and neural models.
+   - Saves trained model artifacts into `models/`.
+
+6. `06_model_evaluation.ipynb`
+   - Evaluates models on the official test split.
+   - Generates comparison tables, confusion matrices, ROC/PR curves, history plots, error analysis, LIME output, and feature ablation results.
+
+7. `07_aspect_based_sentiment.ipynb`
+   - Runs rule-based aspect detection.
+   - Splits reviews into sentence/clause-level opinion units for mixed-aspect reviews.
+   - Produces food/service/ambience/price sentiment summaries.
+
+8. `08_bert_model.ipynb`
+   - Fine-tunes `distilbert-base-uncased`.
+   - Uses a subset of the official training split for hardware practicality.
+   - Evaluates on the same official test split.
+   - Saves BERT weights as `pytorch_model.bin` to avoid Windows `model.safetensors` file-locking issues.
+
+## Models
+
+The project trains and compares:
+
+- Logistic Regression
+- Linear SVM
+- LightGBM
+- SGD Classifier
+- TextCNN
+- FastText-style neural baseline
+- LSTM
+- BiLSTM
+- CNN-LSTM
+- MLP artifact
+- DistilBERT
+
+The best classical models reach roughly 80% accuracy/F1 on the subjective 3-class task. Exact metrics are written to `results/final_evaluation.csv`, `results/model_comparison.csv`, and `results/bert_test_evaluation.csv` after running the evaluation notebooks.
+
+## Flask Web App
+
+Start the local app:
+
+```bash
+cd app
+python app.py
+```
+
+Then open:
+
+```text
+http://127.0.0.1:5000
+```
+
+Main app features:
+
+- Single-review prediction with selectable model.
+- Confidence bars and word impact visualization.
+- ABSA insights for food, service, ambience, and price.
+- Sarcasm warning for suspicious positive wording around negative experiences.
+- Reviewer useful-vote input and trusted/fake-risk profiling.
+- Random dataset review loading.
+- All-model prediction table for quick comparison.
+- Bulk CSV prediction.
+- EDA and model comparison pages.
+
+The app automatically disables model buttons when the required artifact is missing from `models/`.
+
+## ABSA Behavior
+
+The ABSA module is intentionally rule-based and interpretable. It detects aspect keywords, then assigns sentiment to the local opinion unit rather than always using the whole review. This prevents mixed text such as:
+
+```text
+service is bad, soup is delicious
+```
+
+from assigning the same sentiment to both aspects. The expected ABSA output is:
+
+- Service: Poor
+- Food: Good
+
+## Generated Outputs
+
+After running the notebooks, the project can generate:
+
+- Model artifacts in `models/`
+- TF-IDF/scaler/tokenizer artifacts
+- Evaluation CSV files
+- Confusion matrices
+- ROC and PR curves
+- Training history plots
+- EDA plots and word clouds
+- LIME HTML explanation
+- ABSA plot
+- LaTeX report figures
+
+## Report
+
+The academic report is in:
+
+```text
+report/main.tex
+```
+
+Figures used by the report are stored under:
+
+```text
+report/figures/
+```
+
+## Notes
+
+- Keep the Flask app closed while overwriting large model files if Windows reports file-lock errors.
+- `08_bert_model.ipynb` saves DistilBERT weights as `pytorch_model.bin`; the Flask app prefers that file when it exists.
+- Because large artifacts are ignored, a fresh clone requires rerunning the notebooks or manually placing generated artifacts into `data/`, `features/`, `models/`, and `results/`.
