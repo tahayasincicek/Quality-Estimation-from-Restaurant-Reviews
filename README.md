@@ -59,6 +59,7 @@ The project is heavily modularized into 7 sequential Jupyter Notebooks and a Web
 * `01_data_preparation.ipynb` : Data ingestion, filtering for "Restaurants", and undersampling to balance classes.
 * `02_eda.ipynb` : Exploratory Data Analysis, n-gram generation, and word clouds.
 * `03_text_preprocessing.ipynb` : Text cleaning, lemmatization, stopword removal, and text-based feature engineering (TextBlob polarity).
+
 * `04_feature_extraction.ipynb` : Leakage-safe split creation, TF-IDF vectorization, numeric scaling, and Keras Tokenizer sequence padding.
 * `05_model_training.ipynb` : Model architecture definitions and training across all algorithms.
 * `06_model_evaluation.ipynb` : Multi-model comparison, ROC curves, Precision-Recall curves, Radar charts, Confusion Matrices.
@@ -69,3 +70,11 @@ The project is heavily modularized into 7 sequential Jupyter Notebooks and a Web
 - **Real-time Prediction:** Compare how different models (LightGBM, SVM, LR) predict the sentiment of your live text input.
 - **Bulk Analysis:** Upload a CSV of reviews and get detailed charts predicting the overall sentiment distribution.
 - **EDA Dashboards:** Beautiful, interactive graphs showing word clouds, n-grams, and class distributions from the Yelp dataset.
+
+### Web App Screenshots
+
+**Real-Time Prediction Interface**
+![Analyze Screen](report/figures/webapp_analyze.png)
+
+**Model Comparison Interface**
+![Comparison Screen](report/figures/webapp_compare.png)
