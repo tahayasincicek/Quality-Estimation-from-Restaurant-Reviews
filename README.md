@@ -25,7 +25,7 @@ The project includes:
 - TF-IDF word features, optional character TF-IDF, numeric text features, scaling, and Keras sequence tokenization.
 - Classical ML models: Logistic Regression, Linear SVM, SGD Classifier, and LightGBM.
 - Deep learning models: TextCNN, FastText-style model, LSTM, BiLSTM, CNN-LSTM, and MLP artifacts.
-- Transformer model: DistilBERT fine-tuned on a hardware-friendly subset and evaluated on the official test split.
+- Transformer model: DistilBERT fine-tuned on the official training split and evaluated on the official test split.
 - Model evaluation with confusion matrices, ROC curves, PR curves, training histories, radar/bar comparisons, error analysis, and feature ablation.
 - LIME explanation output for local interpretability.
 - Rule-based ABSA for food, service, ambience, and price dimensions.
@@ -132,7 +132,6 @@ Run notebooks in this order:
 
 8. `08_bert_model.ipynb`
    - Fine-tunes `distilbert-base-uncased`.
-   - Uses a subset of the official training split for hardware practicality.
    - Evaluates on the same official test split.
    - Saves BERT weights as `pytorch_model.bin` to avoid Windows `model.safetensors` file-locking issues.
 
