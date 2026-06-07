@@ -20,13 +20,27 @@ A full **Flask Web Application** is included, providing an elegant and modern us
 * **Web Backend:** Flask
 * **Visualization:** Matplotlib, Seaborn, Plotly
 
+## Reproducible Setup
+
+Create a virtual environment and install the project dependencies:
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Run the notebooks in order from `01_data_preparation.ipynb` through `08_bert_model.ipynb`. `04_feature_extraction.ipynb` creates the official train/validation/test indices before fitting TF-IDF, numeric scaling, or tokenization. Vectorizers and scalers are fit only on the training split, then validation/test rows are transformed with those fitted objects.
+
 ## Model Architectures
-We designed and trained 5 distinct models to comprehensively evaluate both sparse representations and dense embeddings:
+We designed and trained multiple models to evaluate sparse representations, dense sequence models, and a Transformer baseline:
 1. **Logistic Regression (Baseline):** Trained on TF-IDF sparse matrices.
 2. **Support Vector Machine (LinearSVC):** Calibrated SVC on TF-IDF.
-3. **LightGBM:** Gradient Boosting framework on TF-IDF, replacing less effective CNN approaches.
-4. **Long Short-Term Memory (LSTM):** Trained on padded token sequences.
-5. **Bidirectional LSTM (BiLSTM):** Capturing past and future text context.
+3. **LightGBM:** Gradient Boosting framework on TF-IDF.
+4. **SGD Classifier:** Linear large-scale baseline on TF-IDF.
+5. **TextCNN / FastText:** Neural sequence baselines trained on padded token sequences.
+6. **LSTM / BiLSTM:** Recurrent neural sequence models.
+7. **DistilBERT:** Transformer model fine-tuned on a hardware-friendly subset of the official training split and evaluated on the official test split.
 
 *(Note: Deep Learning models were trained on subsets to optimize CPU training times, whereas classical ML models and LightGBM digested the entire 1.14M training corpus).*
 
@@ -36,7 +50,7 @@ Evaluated on a completely unseen test set, distinguishing between 3 highly subje
 * **1 (Neutral / Orta)**
 * **2 (Good / İyi)**
 
-The models successfully achieve around **80-85% accuracy/F1** on a highly subjective 3-class NLP task without using pre-trained Transformer models (like BERT), which is a state-of-the-art outcome for classical modeling. LightGBM and Logistic Regression provide the highest accuracy and the fastest inference times.
+The best classical models reach around **80% accuracy/F1** on a subjective 3-class NLP task. Logistic Regression, SVM, and LightGBM are strong classical baselines; DistilBERT is evaluated with the same official test indices.
 
 ## Project Structure (Pipeline)
 
@@ -45,7 +59,7 @@ The project is heavily modularized into 7 sequential Jupyter Notebooks and a Web
 * `01_data_preparation.ipynb` : Data ingestion, filtering for "Restaurants", and undersampling to balance classes.
 * `02_eda.ipynb` : Exploratory Data Analysis, n-gram generation, and word clouds.
 * `03_text_preprocessing.ipynb` : Text cleaning, lemmatization, stopword removal, and text-based feature engineering (TextBlob polarity).
-* `04_feature_extraction.ipynb` : TF-IDF vectorization and Keras Tokenizer sequence padding.
+* `04_feature_extraction.ipynb` : Leakage-safe split creation, TF-IDF vectorization, numeric scaling, and Keras Tokenizer sequence padding.
 * `05_model_training.ipynb` : Model architecture definitions and training across all algorithms.
 * `06_model_evaluation.ipynb` : Multi-model comparison, ROC curves, Precision-Recall curves, Radar charts, Confusion Matrices.
 * `07_aspect_based_sentiment.ipynb` : Aspect-Based Sentiment Analysis (ABSA) for identifying specific features (food, service, price, etc.) and their polarities.

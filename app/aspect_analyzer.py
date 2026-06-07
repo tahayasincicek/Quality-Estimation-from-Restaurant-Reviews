@@ -1,4 +1,5 @@
 import nltk
+import re
 from textblob import TextBlob
 from nltk.tokenize import sent_tokenize
 
@@ -20,7 +21,7 @@ def get_aspects_from_sentence(sentence):
     sentence_lower = sentence.lower()
     detected_aspects = []
     for aspect, keywords in aspect_keywords.items():
-        if any(keyword in sentence_lower for keyword in keywords):
+        if any(re.search(r"\b" + re.escape(keyword) + r"\b", sentence_lower) for keyword in keywords):
             detected_aspects.append(aspect)
     return detected_aspects
 

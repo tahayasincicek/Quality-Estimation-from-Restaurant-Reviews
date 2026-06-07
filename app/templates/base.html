@@ -19,7 +19,10 @@
   <div class="app-layout">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="sidebar-logo">ReviewSentiment</div>
+      <div class="sidebar-logo">
+        <span>ReviewSentiment</span>
+        <span class="sidebar-logo-sub">Yelp quality intelligence</span>
+      </div>
       
       <nav class="nav-links">
         <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">
@@ -61,6 +64,12 @@
 
     <!-- Main Content -->
     <main class="main-content">
+      <div class="mobile-nav">
+        <a href="/" class="{% if request.path == '/' %}active{% endif %}">Analyze</a>
+        <a href="/comparison" class="{% if request.path == '/comparison' %}active{% endif %}">Models</a>
+        <a href="/eda" class="{% if request.path == '/eda' %}active{% endif %}">Data</a>
+        <a href="/bulk" class="{% if request.path == '/bulk' %}active{% endif %}">Bulk</a>
+      </div>
       {% block content %}{% endblock %}
     </main>
   </div>

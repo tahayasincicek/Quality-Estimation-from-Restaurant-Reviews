@@ -1,26 +1,38 @@
 {% extends "base.html" %}
 {% block title %}About - ReviewSentiment{% endblock %}
 {% block content %}
-<h1 class="page-title">About</h1>
-<p class="page-desc">Quality estimation of restaurant reviews using the Yelp Open Dataset.</p>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">About</h1>
+    <p class="page-desc">Quality estimation of restaurant reviews using the Yelp Open Dataset.</p>
+  </div>
+  <div class="page-meta">
+    <span class="meta-pill">Academic project</span>
+    <span class="meta-pill">Flask demo</span>
+  </div>
+</div>
 
-<div class="about-section mt-24">
+<section class="about-section tool-panel">
   <div class="about-section-title">Dataset</div>
   <p class="text-muted mb-16" style="max-width: 700px;">
     The models are trained on a large subset of the Yelp Open Dataset, specifically filtered for "Restaurants". 
-    To ensure balanced learning, the classes were harmonized and cleaned, resulting in a training corpus of over 1.14 million reviews.
+    To ensure balanced learning, the classes were harmonized and undersampled into a balanced corpus of 1.63 million restaurant reviews.
   </p>
-  <table style="max-width: 500px;">
+  <div class="table-scroll">
+  <table style="max-width: 560px;">
     <tr><td class="strong">Total Raw Reviews</td><td>~6.9 Million</td></tr>
     <tr><td class="strong">Filtered Restaurants</td><td>~4.7 Million</td></tr>
-    <tr><td class="strong">Final Cleaned Corpus</td><td>1,139,836</td></tr>
-    <tr><td class="strong">Deep Learning Subset</td><td>100,000</td></tr>
+    <tr><td class="strong">Balanced Corpus</td><td>1,629,279</td></tr>
+    <tr><td class="strong">Official Split</td><td>70% train / 15% validation / 15% test</td></tr>
+    <tr><td class="strong">Deep Learning Subset</td><td>25,000 train / 5,000 validation</td></tr>
   </table>
-</div>
+  </div>
+</section>
 
-<div class="about-section">
+<section class="about-section tool-panel">
   <div class="about-section-title">Models</div>
-  <table style="max-width: 800px;">
+  <div class="table-scroll">
+  <table>
     <thead>
       <tr>
         <th>Model</th>
@@ -43,6 +55,12 @@
         <td>Excellent margin separation.</td>
       </tr>
       <tr>
+        <td class="strong">LightGBM</td>
+        <td>Classical ML</td>
+        <td>TF-IDF + Numeric</td>
+        <td>Strong sparse-feature gradient boosting baseline.</td>
+      </tr>
+      <tr>
         <td class="strong">SGD Classifier</td>
         <td>Classical ML</td>
         <td>TF-IDF + Numeric</td>
@@ -60,11 +78,18 @@
         <td>Embedding &rarr; GlobalAveragePooling1D</td>
         <td>Fast training and evaluation for text classification.</td>
       </tr>
+      <tr>
+        <td class="strong">DistilBERT</td>
+        <td>Transformer</td>
+        <td>Official split-compatible fine-tuning workflow</td>
+        <td>Prepared for fair Transformer comparison.</td>
+      </tr>
     </tbody>
   </table>
-</div>
+  </div>
+</section>
 
-<div class="about-section">
+<section class="about-section tool-panel">
   <div class="about-section-title">Quality Classes</div>
   <div class="class-cards">
     <div class="class-card poor">
@@ -83,9 +108,9 @@
       <div class="class-card-desc">Positive feedback, recommendations, excellent food and service.</div>
     </div>
   </div>
-</div>
+</section>
 
-<div class="about-section">
+<section class="about-section tool-panel">
   <div class="about-section-title">How to Run</div>
   <div class="code-step">
     <div class="step-num">1.</div>
@@ -93,15 +118,15 @@
   </div>
   <div class="code-step">
     <div class="step-num">2.</div>
-    <div>Run data preparation (Notebook 1 & 3): <code>python data_preparation.py</code></div>
+    <div>Run notebooks in order: <code>01_data_preparation.ipynb</code> through <code>08_bert_model.ipynb</code></div>
   </div>
   <div class="code-step">
     <div class="step-num">3.</div>
-    <div>Train models (Notebook 4 & 5): Extract TF-IDF and train LR, SVM, SGD, TextCNN, FastText.</div>
+    <div>Regenerate features and models after method changes: <code>04_feature_extraction.ipynb</code>, <code>05_model_training.ipynb</code>, <code>06_model_evaluation.ipynb</code></div>
   </div>
   <div class="code-step">
     <div class="step-num">4.</div>
-    <div>Start UI: <code>cd app && python app.py</code></div>
+    <div>Start UI: <code>cd app && py app.py</code></div>
   </div>
-</div>
+</section>
 {% endblock %}

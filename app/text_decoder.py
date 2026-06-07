@@ -1,21 +1,21 @@
 import re
 
 EMOJI_DICT = {
-    "🔥": "excellent",
-    "😡": "angry",
-    "🤮": "disgusting",
-    "🤢": "disgusting",
-    "😍": "love",
-    "❤️": "love",
-    "👍": "good",
-    "👎": "bad",
-    "⭐": "star",
-    "😋": "delicious",
-    "💩": "terrible",
-    "😊": "happy",
-    "😞": "sad",
-    "💯": "perfect",
-    "👏": "bravo"
+    "\U0001f525": "excellent",
+    "\U0001f621": "angry",
+    "\U0001f92e": "disgusting",
+    "\U0001f922": "disgusting",
+    "\U0001f60d": "love",
+    "\u2764\ufe0f": "love",
+    "\U0001f44d": "good",
+    "\U0001f44e": "bad",
+    "\u2b50": "star",
+    "\U0001f60b": "delicious",
+    "\U0001f4a9": "terrible",
+    "\U0001f60a": "happy",
+    "\U0001f61e": "sad",
+    "\U0001f4af": "perfect",
+    "\U0001f44f": "bravo",
 }
 
 SLANG_DICT = {
@@ -31,35 +31,30 @@ SLANG_DICT = {
     "af": "as fuck",
     "fr": "for real",
     "rn": "right now",
-    "sus": "suspicious"
+    "sus": "suspicious",
 }
+
 
 def decode_text(text):
     """
-    Scans the text for emojis and slangs, translates them to NLP-friendly english words.
-    Returns: (decoded_text, list_of_insights)
-    list_of_insights format: [{'original': '🔥', 'decoded': 'excellent', 'type': 'emoji'}, ...]
+    Translate emojis and slang to NLP-friendly English words.
+
+    Returns:
+        tuple[str, list[dict]]: decoded text and replacement metadata.
     """
     insights = []
     decoded_text = text
 
-    # Decode Emojis
     for emoji, meaning in EMOJI_DICT.items():
         if emoji in decoded_text:
-            insights.append({'original': emoji, 'decoded': meaning, 'type': 'emoji'})
-            # Emojileri aralara boşluk bırakarak yerleştir
+            insights.append({"original": emoji, "decoded": meaning, "type": "emoji"})
             decoded_text = decoded_text.replace(emoji, f" {meaning} ")
 
-    # Decode Slangs
-    # Slang kelimelerini regex kelime sınırları (\b) ile aramak daha güvenlidir
     for slang, meaning in SLANG_DICT.items():
-        # Case insensitive olarak ara
         pattern = r"\b" + re.escape(slang) + r"\b"
         if re.search(pattern, decoded_text, flags=re.IGNORECASE):
-            insights.append({'original': slang, 'decoded': meaning, 'type': 'slang'})
+            insights.append({"original": slang, "decoded": meaning, "type": "slang"})
             decoded_text = re.sub(pattern, f" {meaning} ", decoded_text, flags=re.IGNORECASE)
-            
-    # Temizlenmiş metindeki fazla boşlukları düzelt
-    decoded_text = " ".join(decoded_text.split())
 
+    decoded_text = " ".join(decoded_text.split())
     return decoded_text, insights

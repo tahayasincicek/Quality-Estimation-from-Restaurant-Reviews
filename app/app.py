@@ -14,14 +14,12 @@ from aspect_analyzer import analyze_aspects
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-import os
 os.environ["KERAS_BACKEND"] = "torch"
 import keras
 from keras.utils import pad_sequences
 import tensorflow as tf
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import warnings
 warnings.filterwarnings('ignore')
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -58,7 +56,7 @@ vectorizer = None
 scaler = None
 tokenizer = None
 models_status = {
-    'lr': 'err', 'svm': 'err', 'sgd': 'err', 'cnn': 'err', 'fasttext': 'err', 'bert': 'err'
+    'lr': 'err', 'svm': 'err', 'lgbm': 'err', 'sgd': 'err', 'cnn': 'err', 'fasttext': 'err', 'bert': 'err'
 }
 
 def load_resources():
@@ -79,6 +77,10 @@ def load_resources():
         if os.path.exists(os.path.join(MODELS_DIR, 'svm_model.pkl')):
             models['svm'] = joblib.load(os.path.join(MODELS_DIR, 'svm_model.pkl'))
             models_status['svm'] = 'ok'
+
+        if os.path.exists(os.path.join(MODELS_DIR, 'lgbm_model.pkl')):
+            models['lgbm'] = joblib.load(os.path.join(MODELS_DIR, 'lgbm_model.pkl'))
+            models_status['lgbm'] = 'ok'
             
         if os.path.exists(os.path.join(MODELS_DIR, 'cnn_model.h5')):
             models['cnn'] = keras.models.load_model(os.path.join(MODELS_DIR, 'cnn_model.h5'))
@@ -130,7 +132,7 @@ def clean_text(text):
     return " ".join(words)
 
 def clean_text_dl(text):
-    # Derin Öğrenme modelleri (CNN, FastText) için lemmatization yapılmamalıdır.
+    # Deep models (CNN, FastText) should use non-lemmatized text.
     text = text.lower()
     text = re.sub(r'<.*?>', '', text)
     text = re.sub(r'http\S+|www\S+', '', text)
@@ -138,8 +140,7 @@ def clean_text_dl(text):
     return text.strip()
 
 def clean_text_bert(text):
-    # BERT için lemmatization ve noktalama silme işlemi yapılmamalıdır.
-    # Cased (büyük/küçük harf duyarlı) model olduğu için lower() da yapılmaz.
+    # BERT should keep punctuation and non-lemmatized text.
     text = re.sub(r'<.*?>', '', text)
     text = re.sub(r'http\S+|www\S+', '', text)
     return text.strip()
@@ -165,10 +166,9 @@ def get_prediction(text, model_name='lr'):
     start_t = time.time()
     
     num_feats = extract_features(text)
-    num_feats = extract_features(text)
-    cleaned = clean_text(text) # TF-IDF (Geleneksel) için lemmatize edilmiş metin
-    cleaned_dl = clean_text_dl(text) # Derin Öğrenme (CNN, FastText) için lemmatize EDİLMEMİŞ metin
-    cleaned_bert = clean_text_bert(text) # BERT için ham (lemmatize EDİLMEMİŞ) metin
+    cleaned = clean_text(text)
+    cleaned_dl = clean_text_dl(text)
+    cleaned_bert = clean_text_bert(text)
     
     tb = TextBlob(text)
     stats = {
@@ -182,7 +182,7 @@ def get_prediction(text, model_name='lr'):
     pred_idx = 1
     conf_dict = {'poor': 0, 'average': 0, 'good': 0}
     
-    if model_name in ['lr', 'svm', 'sgd'] and vectorizer and scaler:
+    if model_name in ['lr', 'svm', 'lgbm', 'sgd'] and vectorizer and scaler:
         tfidf_mat = vectorizer.transform([cleaned])
         
         # Simple top words based on tfidf
@@ -219,7 +219,6 @@ def get_prediction(text, model_name='lr'):
         conf_dict = {'poor': float(probs[0]*100), 'average': float(probs[1]*100), 'good': float(probs[2]*100)}
         
     elif model_name == 'bert' and 'bert' in models and 'bert_tokenizer' in models:
-        # BERT için özel olarak lemmatize edilmemiş raw metni kullanıyoruz
         inputs = models['bert_tokenizer'](cleaned_bert, return_tensors="pt", padding=True, truncation=True, max_length=128)
         with torch.no_grad():
             outputs = models['bert'](**inputs)
@@ -286,7 +285,7 @@ def predict():
     
     # Run all models quickly for the "All Models" table
     all_models_res = []
-    for m in ['lr', 'svm', 'sgd', 'cnn', 'fasttext', 'bert']:
+    for m in ['lr', 'svm', 'lgbm', 'sgd', 'cnn', 'fasttext', 'bert']:
         if m in models:
             m_res = get_prediction(text, m)
             if m == 'bert':
@@ -333,6 +332,7 @@ def get_confusion(model):
     cmap = {
         'lr': 'confusion_matrix_Logistic_Regression.png',
         'svm': 'confusion_matrix_SVM.png',
+        'lgbm': 'confusion_matrix_LightGBM.png',
         'sgd': 'confusion_matrix_SGD.png',
         'cnn': 'confusion_matrix_TextCNN.png',
         'fasttext': 'confusion_matrix_FastText.png'
@@ -367,4 +367,5 @@ def random_dataset_review():
     return jsonify({'error': 'Sample dataset not found'})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    debug = os.environ.get('FLASK_DEBUG', '').lower() in {'1', 'true', 'yes'}
+    app.run(debug=debug, port=5000)

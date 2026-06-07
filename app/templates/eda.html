@@ -15,18 +15,26 @@
     border-radius: 6px;
 }
 </style>
-<h1 class="page-title">Data Analysis</h1>
-<p class="page-desc">Exploratory Data Analysis of the Yelp Restaurant Reviews dataset.</p>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Data Analysis</h1>
+    <p class="page-desc">Exploratory Data Analysis of the Yelp Restaurant Reviews dataset.</p>
+  </div>
+  <div class="page-meta">
+    <span class="meta-pill">Balanced classes</span>
+    <span class="meta-pill">Restaurant subset</span>
+  </div>
+</div>
 
 <div class="stat-row">
   <div class="stat-cell">
     <div class="stat-label">Total Reviews</div>
-    <div class="stat-value">1,139,836</div>
-    <div class="stat-sub">After cleaning</div>
+    <div class="stat-value">1,629,279</div>
+    <div class="stat-sub">Balanced corpus</div>
   </div>
   <div class="stat-cell">
     <div class="stat-label">Restaurants</div>
-    <div class="stat-value">52,341</div>
+    <div class="stat-value">52,268</div>
     <div class="stat-sub">Filtered from Yelp Open Dataset</div>
   </div>
   <div class="stat-cell">
@@ -48,6 +56,7 @@
   <button class="tab-btn" data-target="tab-time">Time Trend</button>
 </div>
 
+<section class="tool-panel">
 <div class="tab-content">
   <div id="tab-dist" class="tab-pane active">
     <div class="single-img-container">
@@ -96,35 +105,6 @@
     </div>
   </div>
 </div>
+</section>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const wcBtns = document.querySelectorAll('#wc-btns .btn');
-  const wcImg = document.getElementById('wc-img');
-  const twImg = document.getElementById('tw-img');
-  const bgImg = document.getElementById('bg-img');
-  
-  const mapSuffix = {
-      'kotu': 'bad',
-      'orta': 'middle',
-      'iyi': 'good'
-  };
-
-  wcBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      // Remove active from all
-      wcBtns.forEach(b => b.classList.remove('active'));
-      // Add active to clicked
-      btn.classList.add('active');
-      
-      const trClass = btn.getAttribute('data-class');
-      const enClass = mapSuffix[trClass];
-      
-      wcImg.src = `/eda_img/eda_wordcloud_${trClass}`;
-      twImg.src = `/eda_img/eda_top_words_${enClass}`;
-      bgImg.src = `/eda_img/eda_bigrams_${enClass}`;
-    });
-  });
-});
-</script>
 {% endblock %}

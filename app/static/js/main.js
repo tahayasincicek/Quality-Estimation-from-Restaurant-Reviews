@@ -1,6 +1,67 @@
 document.addEventListener('DOMContentLoaded', () => {
   if (window.lucide) lucide.createIcons();
 
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function getActiveModel(selector, fallback = 'lr') {
+    const active = document.querySelector(`${selector} .btn.active:not(:disabled)`);
+    if (active) return active.getAttribute('data-model') || fallback;
+    const firstEnabled = document.querySelector(`${selector} .btn:not(:disabled)`);
+    if (firstEnabled) {
+      document.querySelectorAll(`${selector} .btn`).forEach(btn => btn.classList.remove('active'));
+      firstEnabled.classList.add('active');
+      return firstEnabled.getAttribute('data-model') || fallback;
+    }
+    return fallback;
+  }
+
+  function initComparisonCharts() {
+    if (!document.getElementById('metrics-chart') || !window.drawGroupedBar || !window.drawRadar) return;
+    const models = ['LR', 'SVM', 'TextCNN', 'FastText', 'SGD', 'LightGBM'];
+    const acc = [0.804, 0.801, 0.760, 0.758, 0.755, 0.792];
+    const f1 = [0.804, 0.800, 0.761, 0.757, 0.753, 0.793];
+    drawGroupedBar('metrics-chart', models, [acc, f1], ['Accuracy', 'F1 Score']);
+
+    drawRadar('radar-chart', ['Accuracy', 'Precision', 'Recall', 'F1 Score'], [
+      [0.804, 0.804, 0.804, 0.804],
+      [0.801, 0.800, 0.801, 0.800],
+      [0.760, 0.767, 0.760, 0.761],
+      [0.758, 0.756, 0.758, 0.757],
+      [0.755, 0.752, 0.755, 0.753],
+      [0.792, 0.793, 0.792, 0.793]
+    ], models);
+  }
+
+  function initEdaControls() {
+    const wcBtns = document.querySelectorAll('#wc-btns .btn');
+    const wcImg = document.getElementById('wc-img');
+    const twImg = document.getElementById('tw-img');
+    const bgImg = document.getElementById('bg-img');
+    if (!wcBtns.length || !wcImg || !twImg || !bgImg) return;
+
+    const mapSuffix = { kotu: 'bad', orta: 'middle', iyi: 'good' };
+    wcBtns.forEach(btn => {
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+      newBtn.addEventListener('click', () => {
+        document.querySelectorAll('#wc-btns .btn').forEach(b => b.classList.remove('active'));
+        newBtn.classList.add('active');
+        const trClass = newBtn.getAttribute('data-class');
+        const enClass = mapSuffix[trClass];
+        wcImg.src = `/eda_img/eda_wordcloud_${trClass}`;
+        twImg.src = `/eda_img/eda_top_words_${enClass}`;
+        bgImg.src = `/eda_img/eda_bigrams_${enClass}`;
+      });
+    });
+  }
+
   // ============================================
   // SPA ROUTER
   // ============================================
@@ -53,6 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (window.lucide) lucide.createIcons();
         initPageEvents();
+        initComparisonCharts();
+        initEdaControls();
       } else {
         window.location.href = url; 
       }
@@ -89,8 +152,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnGroups = document.querySelectorAll('.btn-group');
     btnGroups.forEach(group => {
       const btns = group.querySelectorAll('.btn');
+      const active = group.querySelector('.btn.active:not(:disabled)');
+      if (!active) {
+        btns.forEach(btn => btn.classList.remove('active'));
+        const firstEnabled = group.querySelector('.btn:not(:disabled)');
+        if (firstEnabled) firstEnabled.classList.add('active');
+      }
       btns.forEach(btn => {
         btn.addEventListener('click', () => {
+          if (btn.disabled) return;
           btns.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
         });
@@ -168,8 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
           
-          const activeModelBtn = document.querySelector('#model-select .btn.active');
-          const modelName = activeModelBtn ? activeModelBtn.getAttribute('data-model') : 'lr';
+          const modelName = getActiveModel('#model-select', 'lr');
 
           const originalHtml = newBtnAnalyze.innerHTML;
           newBtnAnalyze.disabled = true;
@@ -220,10 +289,10 @@ document.addEventListener('DOMContentLoaded', () => {
                   aspectContent.innerHTML = '';
                   data.aspect_insights.forEach(item => {
                      let badgeClass = item.sentiment === 'Good' ? 'badge-good' : (item.sentiment === 'Poor' ? 'badge-poor' : 'badge-average');
-                     let tooltip = item.sentences.join(' | ').replace(/"/g, '&quot;');
+                     let tooltip = escapeHtml(item.sentences.join(' | '));
                      aspectContent.innerHTML += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;" title="${tooltip}">
-                        <span style="font-weight: 500; font-size: 14px;">${item.aspect}</span>
-                        <span class="${badgeClass}" style="font-size: 12px; padding: 2px 6px;">${item.sentiment}</span>
+                        <span style="font-weight: 500; font-size: 14px;">${escapeHtml(item.aspect)}</span>
+                        <span class="${badgeClass}" style="font-size: 12px; padding: 2px 6px;">${escapeHtml(item.sentiment)}</span>
                      </div>`;
                   });
                 } else {
@@ -262,9 +331,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 tbody.innerHTML = '';
                 data.all_models.forEach(m => {
                   tbody.innerHTML += `<tr>
-                    <td>${m.name}</td>
-                    <td>${m.type}</td>
-                    <td><span class="badge-${m.label.toLowerCase()}">${m.label}</span></td>
+                    <td>${escapeHtml(m.name)}</td>
+                    <td>${escapeHtml(m.type)}</td>
+                    <td><span class="badge-${m.label.toLowerCase()}">${escapeHtml(m.label)}</span></td>
                     <td>${Math.round(m.conf)}%</td>
                     <td>${m.time}ms</td>
                   </tr>`;
@@ -406,7 +475,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (typeof Papa === 'undefined') { alert('PapaParse not loaded'); return; }
       Papa.parse(file, {
         complete: function(results) {
-          const texts = results.data.map(r => r.text || r[0]).filter(t => t && t.trim().length > 0).slice(0, 500); 
+          const texts = results.data
+            .map(r => r.text || r.review || r.comment || r.Review || r.Text || Object.values(r)[0])
+            .filter(t => t && String(t).trim().length > 0)
+            .map(t => String(t).trim())
+            .slice(0, 500);
           bulkData = texts;
           document.getElementById('drop-zone-text').innerHTML = `<b>${file.name}</b> loaded<br>${texts.length} reviews found (max 500).`;
         },
@@ -436,8 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("No reviews to analyze."); return;
           }
 
-          const activeModelBtn = document.querySelector('#bulk-model-select .btn.active');
-          const modelName = activeModelBtn ? activeModelBtn.getAttribute('data-model') : 'lr';
+          const modelName = getActiveModel('#bulk-model-select', 'lr');
 
           newBtnBulk.disabled = true;
           newBtnBulk.innerHTML = '<i data-lucide="loader" class="spin"></i> Processing...';
@@ -463,21 +535,41 @@ document.addEventListener('DOMContentLoaded', () => {
               
               window.bulkExportData = data.results; 
 
-              data.results.forEach((r, i) => {
+              window.bulkFilter = 'All';
+              function renderBulkRows(filter = 'All') {
+                const filtered = data.results.filter(r => filter === 'All' || r.label === filter);
+                tbody.innerHTML = '';
+                filtered.forEach((r, i) => {
+                  const safeText = escapeHtml(r.text);
+                  const shortText = escapeHtml(r.text.length > 90 ? r.text.substring(0, 90) + '...' : r.text);
+                  tbody.innerHTML += `<tr data-label="${escapeHtml(r.label)}">
+                    <td>${i+1}</td>
+                    <td title="${safeText}">${shortText}</td>
+                    <td><span class="badge-${r.label.toLowerCase()}">${escapeHtml(r.label)}</span></td>
+                    <td>${Math.round(r.confidence)}%</td>
+                  </tr>`;
+                });
+              }
+
+              data.results.forEach((r) => {
                 if (r.label === 'Good') good++;
                 if (r.label === 'Average') avg++;
                 if (r.label === 'Poor') poor++;
-                
-                tbody.innerHTML += `<tr>
-                  <td>${i+1}</td>
-                  <td title="${r.text}">${r.text.length > 60 ? r.text.substring(0, 60) + '...' : r.text}</td>
-                  <td><span class="badge-${r.label.toLowerCase()}">${r.label}</span></td>
-                  <td>${Math.round(r.confidence)}%</td>
-                </tr>`;
               });
-              
+
+              renderBulkRows();
               document.getElementById('bulk-summary').innerHTML = `Good: <b>${good}</b> &middot; Average: <b>${avg}</b> &middot; Poor: <b>${poor}</b>`;
               if (window.drawDoughnut) drawDoughnut('bulk-doughnut', [good, avg, poor]);
+
+              document.querySelectorAll('.filter-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  const filter = link.textContent.trim();
+                  document.querySelectorAll('.filter-link').forEach(x => x.classList.add('text-muted'));
+                  link.classList.remove('text-muted');
+                  renderBulkRows(filter);
+                });
+              });
             }
           } catch (err) {
             alert("Request failed.");
@@ -516,4 +608,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================
   initRouter();
   initPageEvents();
+  initComparisonCharts();
+  initEdaControls();
 });

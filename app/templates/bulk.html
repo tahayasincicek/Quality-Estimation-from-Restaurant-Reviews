@@ -1,26 +1,36 @@
 {% extends "base.html" %}
 {% block title %}Bulk Analysis - ReviewSentiment{% endblock %}
 {% block content %}
-<h1 class="page-title">Bulk Analysis</h1>
-<p class="page-desc">Process multiple reviews at once using text input or CSV upload.</p>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Bulk Analysis</h1>
+    <p class="page-desc">Process multiple reviews at once using text input or CSV upload.</p>
+  </div>
+  <div class="page-meta">
+    <span class="meta-pill">500 review cap</span>
+    <span class="meta-pill">CSV export</span>
+  </div>
+</div>
 
 <div class="bulk-grid">
-  <!-- Sol Sütun -->
-  <div>
+  <!-- Left Column -->
+  <section class="tool-panel">
     <div class="form-group">
       <label class="form-label">Model</label>
       <div class="btn-group" id="bulk-model-select" style="display:flex;">
-        <button class="btn active" data-model="lr" style="flex:1;">LR</button>
-        <button class="btn" data-model="svm" style="flex:1;">SVM</button>
-        <button class="btn" data-model="cnn" style="flex:1;">TextCNN</button>
+        <button class="btn active" data-model="lr" {% if models_status.lr != 'ok' %}disabled{% endif %}>LR</button>
+        <button class="btn" data-model="svm" {% if models_status.svm != 'ok' %}disabled{% endif %}>SVM</button>
+        <button class="btn" data-model="lgbm" {% if models_status.lgbm != 'ok' %}disabled{% endif %}>LightGBM</button>
+        <button class="btn" data-model="cnn" {% if models_status.cnn != 'ok' %}disabled{% endif %}>TextCNN</button>
       </div>
+      <div class="model-hint">Batch mode is capped at 500 reviews for interactive use.</div>
     </div>
 
     <div class="form-group">
       <label class="form-label">Input Method</label>
-      <div style="display:flex; gap:16px; font-size:13px;">
-        <label style="cursor:pointer;"><input type="radio" name="bulk-method" value="text" checked> Text Input</label>
-        <label style="cursor:pointer;"><input type="radio" name="bulk-method" value="csv"> CSV Upload</label>
+      <div class="radio-row">
+        <label><input type="radio" name="bulk-method" value="text" checked> Text Input</label>
+        <label><input type="radio" name="bulk-method" value="csv"> CSV Upload</label>
       </div>
     </div>
 
@@ -38,36 +48,37 @@
     </div>
 
     <button class="btn btn-primary btn-full" id="btn-bulk">Analyze</button>
-  </div>
+  </section>
 
-  <!-- Sağ Sütun -->
-  <div>
+  <!-- Right Column -->
+  <section class="tool-panel">
     <label class="form-label">Results</label>
     
     <div id="bulk-empty" class="result-empty">
-      Run analysis to see results.
+      <i data-lucide="list-checks"></i>
+      <span>Run analysis to see results.</span>
     </div>
 
     <div id="bulk-results" style="display:none;">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
-        <div id="bulk-summary" class="result-stats" style="margin:0; border:none; padding:0;"></div>
-        <div style="width:200px; height:200px;"><canvas id="bulk-doughnut"></canvas></div>
+      <div class="bulk-summary-layout">
+        <div id="bulk-summary" class="result-stats bulk-summary-text"></div>
+        <div class="chart-box chart-box-donut"><canvas id="bulk-doughnut"></canvas></div>
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:8px;">
-        <div style="font-size:12px;" class="text-muted">
+      <div class="table-toolbar">
+        <div class="filter-group">
           Filter: 
           <a href="#" class="filter-link" style="color:var(--fg);font-weight:500;">All</a> &middot;
           <a href="#" class="filter-link text-muted">Good</a> &middot;
           <a href="#" class="filter-link text-muted">Average</a> &middot;
           <a href="#" class="filter-link text-muted">Poor</a>
         </div>
-        <div style="font-size:12px;">
+        <div class="export-link">
           Export as: <a href="#" id="export-csv" style="color:var(--accent);">CSV</a>
         </div>
       </div>
 
-      <div style="border:1px solid var(--border); border-radius:6px; overflow:hidden;">
+      <div class="table-scroll table-frame">
         <table style="margin:0;">
           <thead>
             <tr>
@@ -78,11 +89,11 @@
             </tr>
           </thead>
           <tbody id="bulk-tbody">
-            <!-- JS dolduracak -->
+            <!-- Filled by JS -->
           </tbody>
         </table>
       </div>
     </div>
-  </div>
+  </section>
 </div>
 {% endblock %}

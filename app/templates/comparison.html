@@ -1,23 +1,31 @@
 {% extends "base.html" %}
 {% block title %}Comparison - ReviewSentiment{% endblock %}
 {% block content %}
-<h1 class="page-title">Model Comparison</h1>
-<p class="page-desc">Performance metrics across all trained models.</p>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Model Comparison</h1>
+    <p class="page-desc">Performance metrics across all trained models.</p>
+  </div>
+  <div class="page-meta">
+    <span class="meta-pill">Official splits</span>
+    <span class="meta-pill">Macro F1 focused</span>
+  </div>
+</div>
 
 <div class="stat-row">
   <div class="stat-cell">
     <div class="stat-label">Best Model</div>
     <div class="stat-value">Logistic Reg.</div>
-    <div class="stat-sub">By overall F1-score</div>
+    <div class="stat-sub">Highest official test F1</div>
   </div>
   <div class="stat-cell">
     <div class="stat-label">Highest F1</div>
-    <div class="stat-value">0.798</div>
+    <div class="stat-value">0.804</div>
     <div class="stat-sub">Macro average</div>
   </div>
   <div class="stat-cell">
     <div class="stat-label">Best Accuracy</div>
-    <div class="stat-value">80.0%</div>
+    <div class="stat-value">80.4%</div>
     <div class="stat-sub">On 15% unseen test set</div>
   </div>
   <div class="stat-cell">
@@ -29,24 +37,29 @@
 
 <hr class="divider">
 
-<table class="mb-16">
-  <thead>
-    <tr>
-      <th class="sortable">Model</th>
-      <th class="sortable desc">Accuracy</th>
-      <th class="sortable">Precision</th>
-      <th class="sortable">Recall</th>
-      <th class="sortable">F1 Score</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr><td class="strong">Logistic Regression</td><td class="strong">0.800</td><td class="strong">0.798</td><td class="strong">0.797</td><td class="strong">0.798</td></tr>
-    <tr><td>SVM</td><td>0.795</td><td>0.793</td><td>0.791</td><td>0.793</td></tr>
-    <tr><td>TextCNN</td><td>0.781</td><td>0.782</td><td>0.780</td><td>0.781</td></tr>
-    <tr><td>FastText</td><td>0.740</td><td>0.739</td><td>0.738</td><td>0.738</td></tr>
-    <tr><td>SGD</td><td>0.795</td><td>0.795</td><td>0.795</td><td>0.795</td></tr>
-  </tbody>
-</table>
+<div class="table-scroll table-frame mb-16">
+  <table>
+    <thead>
+      <tr>
+        <th class="sortable">Model</th>
+        <th class="sortable desc">Accuracy</th>
+        <th class="sortable">Precision</th>
+        <th class="sortable">Recall</th>
+        <th class="sortable">F1 Score</th>
+        <th class="sortable">Split</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="strong">Logistic Regression</td><td class="strong">0.804</td><td class="strong">0.804</td><td class="strong">0.804</td><td class="strong">0.804</td><td><span class="split-badge">Test</span></td></tr>
+      <tr><td>SVM</td><td>0.801</td><td>0.800</td><td>0.801</td><td>0.800</td><td><span class="split-badge">Test</span></td></tr>
+      <tr><td>TextCNN</td><td>0.760</td><td>0.767</td><td>0.760</td><td>0.761</td><td><span class="split-badge">Test</span></td></tr>
+      <tr><td>FastText</td><td>0.758</td><td>0.756</td><td>0.758</td><td>0.757</td><td><span class="split-badge">Test</span></td></tr>
+      <tr><td>SGD</td><td>0.755</td><td>0.752</td><td>0.755</td><td>0.753</td><td><span class="split-badge">Test</span></td></tr>
+      <tr><td>LightGBM</td><td>0.792</td><td>0.793</td><td>0.792</td><td>0.793</td><td><span class="split-badge split-badge-muted">Validation</span></td></tr>
+    </tbody>
+  </table>
+</div>
+<p class="table-note">LightGBM is shown with validation metrics because the latest official test CSV does not include a LightGBM test row yet.</p>
 
 <div class="tab-bar mt-24">
   <button class="tab-btn active" data-target="tab-metrics">Metrics</button>
@@ -57,37 +70,38 @@
 </div>
 
 <div class="tab-content">
-  <div id="tab-metrics" class="tab-pane active" style="height: 300px;">
+  <div id="tab-metrics" class="tab-pane active chart-box">
     <canvas id="metrics-chart"></canvas>
   </div>
-  <div id="tab-radar" class="tab-pane" style="height: 350px;">
+  <div id="tab-radar" class="tab-pane chart-box chart-box-lg">
     <canvas id="radar-chart"></canvas>
   </div>
   <div id="tab-cm" class="tab-pane">
-    <div class="btn-group mb-16" id="cm-btns">
+    <div class="btn-group mb-16 btn-wrap" id="cm-btns">
       <button class="btn active" data-model="lr">LR</button>
       <button class="btn" data-model="svm">SVM</button>
+      <button class="btn" data-model="lgbm">LightGBM</button>
       <button class="btn" data-model="cnn">TextCNN</button>
       <button class="btn" data-model="fasttext">FastText</button>
       <button class="btn" data-model="sgd">SGD</button>
     </div>
-    <div>
-      <img id="cm-img" src="/confusion/lr" style="max-width: 100%; width: 100%; border: 1px solid var(--border); border-radius: 6px;">
+    <div class="image-frame">
+      <img id="cm-img" src="/confusion/lr" alt="Confusion matrix">
     </div>
   </div>
   <div id="tab-roc" class="tab-pane">
-    <div style="display: flex; flex-direction: column; gap: 24px;">
+    <div class="analysis-gallery">
       <h3 style="margin-bottom: 0;">ROC Curves</h3>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-        <img src="/eda_img/roc_curve_class_Bad" style="width:100%; border:1px solid var(--border); border-radius:6px;">
-        <img src="/eda_img/roc_curve_class_Middle" style="width:100%; border:1px solid var(--border); border-radius:6px;">
-        <img src="/eda_img/roc_curve_class_Good" style="width:100%; border:1px solid var(--border); border-radius:6px;">
+      <div class="image-grid-3">
+        <img src="/eda_img/roc_curve_class_Bad" alt="ROC curve for Bad class">
+        <img src="/eda_img/roc_curve_class_Middle" alt="ROC curve for Middle class">
+        <img src="/eda_img/roc_curve_class_Good" alt="ROC curve for Good class">
       </div>
       <h3 style="margin-bottom: 0;">PR Curves</h3>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-        <img src="/eda_img/pr_curve_class_Bad" style="width:100%; border:1px solid var(--border); border-radius:6px;">
-        <img src="/eda_img/pr_curve_class_Middle" style="width:100%; border:1px solid var(--border); border-radius:6px;">
-        <img src="/eda_img/pr_curve_class_Good" style="width:100%; border:1px solid var(--border); border-radius:6px;">
+      <div class="image-grid-3">
+        <img src="/eda_img/pr_curve_class_Bad" alt="Precision-recall curve for Bad class">
+        <img src="/eda_img/pr_curve_class_Middle" alt="Precision-recall curve for Middle class">
+        <img src="/eda_img/pr_curve_class_Good" alt="Precision-recall curve for Good class">
       </div>
     </div>
   </div>
@@ -96,28 +110,10 @@
       <button class="btn active" data-model="cnn">TextCNN</button>
       <button class="btn" data-model="fasttext">FastText</button>
     </div>
-    <div>
-      <img id="hist-img" src="/history/cnn" style="max-width: 100%; width: 100%; border: 1px solid var(--border); border-radius: 6px;">
+    <div class="image-frame">
+      <img id="hist-img" src="/history/cnn" alt="Training history">
     </div>
   </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  if (window.drawGroupedBar && window.drawRadar) {
-    const models = ['LR', 'SVM', 'SGD', 'TextCNN', 'FastText'];
-    const acc = [0.800, 0.795, 0.764, 0.740, 0.715];
-    const f1 = [0.798, 0.793, 0.767, 0.738, 0.707];
-    drawGroupedBar('metrics-chart', models, [acc, f1], ['Accuracy', 'F1 Score']);
-    
-    drawRadar('radar-chart', ['Accuracy', 'Precision', 'Recall', 'F1 Score'], [
-      [0.800, 0.798, 0.797, 0.798],
-      [0.795, 0.793, 0.791, 0.793],
-      [0.764, 0.768, 0.765, 0.767],
-      [0.740, 0.739, 0.738, 0.738],
-      [0.715, 0.708, 0.706, 0.707]
-    ], models);
-  }
-});
-</script>
 {% endblock %}

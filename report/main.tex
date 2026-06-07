@@ -10,7 +10,6 @@
 \usepackage{multirow}
 \usepackage{hyperref}
 \usepackage{float}
-\usepackage{enumitem}
 \usepackage{subcaption}
 \usepackage{array}
 \usepackage{tabularx}
@@ -25,23 +24,27 @@
 
 \graphicspath{{figures/}}
 
+% Varsayılan görsel genişliği IEEE iki sütun düzeninde tek sütuna sığacak şekilde ayarlanmıştır.
+\setkeys{Gin}{width=0.45\textwidth}
+
 \begin{document}
 
-\title{Yelp Restoran Yorumlarından Metin Madenciliği ile Kalite Tahmini: Klasik Makine Öğrenmesi ve Derin Öğrenme Yaklaşımlarının Karşılaştırmalı Analizi}
+\title{Yelp Restoran Yorumlarından Metin Madenciliği ile Kalite Tahmini \\
+Quality Prediction Using Text Mining on Yelp Restaurant Reviews}
 
 \author{
 \IEEEauthorblockN{Taha Yasin Çiçek}
 \IEEEauthorblockA{
-Bilgisayar Mühendisliği Bölümü\\
+Yazılım Mühendisliği\\
+230229088\\
 Kocaeli Üniversitesi\\
-Kocaeli, Türkiye\\
 }
 }
 
 \maketitle
 
 \begin{abstract}
-Bu çalışmada, Yelp açık veri setinden elde edilen yaklaşık 1,6 milyon restoran yorumu üzerinde metin madenciliği teknikleri kullanılarak müşteri deneyimlerinin kalite sınıflandırması gerçekleştirilmiştir. Ham metin verileri kapsamlı bir doğal dil işleme (NLP) boru hattından geçirilerek TF-IDF ve dizi (sequence) tabanlı öznitelik vektörlerine dönüştürülmüştür. Lojistik Regresyon, Destek Vektör Makineleri (SVM), LightGBM, SGD, TextCNN ve FastText olmak üzere altı farklı model mimarisi eğitilmiş ve karşılaştırılmıştır. Deneysel sonuçlar, Lojistik Regresyon modelinin \%80,39 doğruluk ve \%80,38 F1-Makro skoru ile en yüksek performansı sergilediğini göstermektedir. Ayrıca, Açıklanabilir Yapay Zekâ (LIME) yöntemiyle model kararları yorumlanmış ve Yön-Bazlı Duygu Analizi (ABSA) ile yemek, servis, ambiyans ve fiyat gibi spesifik boyutlarda duygu analizi gerçekleştirilmiştir. Sonuçlar, önceden eğitilmiş Transformer modelleri (BERT vb.) kullanılmadan, klasik NLP yöntemleriyle 3-sınıflı subjektif bir görevde yüksek başarı elde edilebileceğini ortaya koymaktadır.
+Bu çalışmada, Yelp açık veri setinden elde edilen yaklaşık 1,6 milyon restoran yorumu üzerinde metin madenciliği teknikleri kullanılarak müşteri deneyimlerinin kalite sınıflandırması gerçekleştirilmiştir. Ham metin verileri kapsamlı bir doğal dil işleme (NLP) boru hattından geçirilerek TF-IDF ve dizi (sequence) tabanlı öznitelik vektörlerine dönüştürülmüştür. Deneysel geçerliliği korumak amacıyla eğitim, doğrulama ve test ayrımı öznitelik çıkarımından önce yapılmış; TF-IDF vektörleştirici, sayısal ölçekleyici ve tokenizer yalnızca eğitim kümesi üzerinde öğrenilmiştir. Lojistik Regresyon, Destek Vektör Makineleri (SVM), LightGBM, SGD, TextCNN ve FastText modelleri eğitilmiş ve karşılaştırılmıştır. Test seti sonuçları, Lojistik Regresyon modelinin \%80,41 doğruluk ve \%80,40 F1-Makro skoru ile en yüksek performansı sergilediğini göstermektedir. Ayrıca, Açıklanabilir Yapay Zekâ (LIME) yöntemiyle model kararları yorumlanmış ve Yön-Bazlı Duygu Analizi (ABSA) ile yemek, servis, ambiyans ve fiyat gibi spesifik boyutlarda duygu analizi gerçekleştirilmiştir. DistilBERT deneyi ise aynı resmi veri bölütlerini kullanacak şekilde yapılandırılmış ve Transformer tabanlı modeller için karşılaştırılabilir bir deney zemini hazırlanmıştır.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -59,7 +62,7 @@ Duygu analizi (sentiment analysis), metinlerdeki öznel bilgileri tespit etmeyi 
 Bu çalışmanın temel katkıları şu şekilde özetlenebilir:
 \begin{itemize}
     \item Yaklaşık 1,6 milyon Yelp restoran yorumu üzerinde kapsamlı bir metin madenciliği boru hattı tasarlanmış ve uygulanmıştır.
-    \item Klasik makine öğrenmesi (Lojistik Regresyon, SVM, LightGBM, SGD) ve derin öğrenme (TextCNN, FastText) modelleri sistematik olarak karşılaştırılmıştır.
+    \item Klasik makine öğrenmesi (Lojistik Regresyon, SVM, LightGBM, SGD) ve standart derin öğrenme (TextCNN, FastText) modelleri sistematik olarak karşılaştırılmış; Transformer tabanlı DistilBERT için aynı resmi veri bölütlerini kullanan ayrı bir deney akışı hazırlanmıştır.
     \item LIME tabanlı açıklanabilir yapay zekâ yöntemiyle model kararları yorumlanmıştır.
     \item Yön-Bazlı Duygu Analizi (ABSA) ile restoran deneyiminin farklı boyutları ayrıştırılmıştır.
     \item Etkileşimli bir Flask web uygulaması geliştirilmiştir.
@@ -77,7 +80,9 @@ TF-IDF (Term Frequency-Inverse Document Frequency) öznitelik çıkarımı, meti
 
 Derin öğrenme yaklaşımları açısından, Kim \cite{kim2014convolutional} Evrişimli Sinir Ağlarını (CNN) metin sınıflandırma için uyarlayarak TextCNN mimarisini önermiştir. Hochreiter ve Schmidhuber \cite{hochreiter1997long} tarafından geliştirilen LSTM ağları ise sıralı verilerdeki uzun vadeli bağımlılıkları yakalamada başarılı olmuştur.
 
-Joulin ve ark. \cite{joulin2017bag} tarafından önerilen FastText modeli, kelime n-gram'larını kullanarak hızlı ve etkili metin sınıflandırması yapmaktadır. Yön-bazlı duygu analizi (ABSA) konusunda ise SemEval yarışmaları \cite{pontiki2016semeval} bu alandaki araştırmaları önemli ölçüde teşvik etmiştir.
+Joulin ve ark. \cite{joulin2017bag} tarafından önerilen FastText modeli, kelime n-gram'larını kullanarak hızlı ve etkili metin sınıflandırması yapmaktadır.
+
+Geleneksel derin öğrenme yöntemlerinin ötesinde, Devlin ve ark. \cite{devlin2018bert} tarafından sunulan BERT (Bidirectional Encoder Representations from Transformers) modeli, doğal dil işleme görevlerinde bir devrim yaratmıştır. Dikkat (attention) mekanizmasına dayanan ve devasa metin verileri üzerinde önceden eğitilen bu Transformer modelleri, kelimelerin bağlamsal anlamını geleneksel yöntemlerden çok daha iyi kavrayabilmektedir. Yön-bazlı duygu analizi (ABSA) konusunda ise SemEval yarışmaları \cite{pontiki2016semeval} bu alandaki araştırmaları önemli ölçüde teşvik etmiştir.
 
 Açıklanabilir yapay zekâ (XAI) alanında, Ribeiro ve ark. \cite{ribeiro2016why} tarafından önerilen LIME (Local Interpretable Model-agnostic Explanations), herhangi bir sınıflandırıcının bireysel tahminlerini yorumlamak için kullanılan model-bağımsız bir yöntemdir.
 
@@ -108,7 +113,7 @@ Sonuç olarak, dengeli veri seti toplamda \textbf{1.629.279 yorum} içermektedir
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{eda_class_distribution.png}
+    \includegraphics{eda_class_distribution.png}
     \caption{Dengeleme sonrası sınıf dağılımı.}
     \label{fig:sinif_dagilim}
 \end{figure}
@@ -142,28 +147,28 @@ Veri setinin temel özelliklerini anlamak amacıyla kapsamlı bir keşifsel veri
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{eda_review_length.png}
+    \includegraphics{eda_review_length.png}
     \caption{Sınıflara göre yorum uzunluğu dağılımı.}
     \label{fig:yorum_uzunluk}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{eda_bigrams_bad.png}
+    \includegraphics{eda_bigrams_bad.png}
     \caption{En sık kullanılan ikili kelimeler - Kötü Sınıf}
     \label{fig:bigrams_bad}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{eda_bigrams_middle.png}
+    \includegraphics{eda_bigrams_middle.png}
     \caption{En sık kullanılan ikili kelimeler - Orta Sınıf}
     \label{fig:bigrams_middle}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{eda_bigrams_good.png}
+    \includegraphics{eda_bigrams_good.png}
     \caption{En sık kullanılan ikili kelimeler - İyi Sınıf}
     \label{fig:bigrams_good}
 \end{figure}
@@ -217,7 +222,7 @@ TextBlob kütüphanesi kullanılarak hesaplanan duygu polaritesi, sınıflar ara
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{preprocessing_features.png}
+    \includegraphics{preprocessing_features.png}
     \caption{Sınıflara göre TextBlob duygu polaritesi dağılımı (keman grafiği).}
     \label{fig:polarity}
 \end{figure}
@@ -226,11 +231,14 @@ TextBlob kütüphanesi kullanılarak hesaplanan duygu polaritesi, sınıflar ara
 
 İki farklı öznitelik temsili oluşturulmuştur:
 
+\subsubsection{Veri Sızıntısını Önleme}
+Deneysel geçerliliği korumak için veri seti, öznitelik çıkarımından önce eğitim, doğrulama ve test kümelerine ayrılmıştır. TF-IDF vektörleştirici, sayısal öznitelik ölçekleyici ve Keras tokenizer yalnızca eğitim kümesi üzerinde \texttt{fit} edilmiştir. Doğrulama ve test kümeleri, eğitim kümesinde öğrenilen bu dönüştürücülerle yalnızca \texttt{transform} edilmiştir. Böylece test kümesindeki kelime dağılımı, ölçek parametreleri veya sözlük bilgisi model eğitim sürecine sızmamıştır.
+
 \subsubsection{TF-IDF Vektörizasyonu}
-Klasik makine öğrenmesi modelleri için TF-IDF (Term Frequency–Inverse Document Frequency) yöntemi kullanılmıştır. Parametreler: \texttt{max\_features=50000}, \texttt{ngram\_range=(1,2)}, \texttt{sublinear\_tf=True}, \texttt{min\_df=2}, \texttt{max\_df=0.95}. TF-IDF matrisi, StandardScaler ile normalize edilmiş 8 sayısal öznitelikle birleştirilerek $(1.629.206 \times 50.008)$ boyutunda bir birleşik öznitelik matrisi elde edilmiştir.
+Klasik makine öğrenmesi modelleri için TF-IDF (Term Frequency--Inverse Document Frequency) yöntemi kullanılmıştır. Parametreler: \texttt{max\_features=50000}, \texttt{ngram\_range=(1,2)}, \texttt{sublinear\_tf=True}, \texttt{min\_df=2}, \texttt{max\_df=0.95}. TF-IDF matrisi, eğitim kümesi üzerinde öğrenildikten sonra tüm veri bölütlerine uygulanmıştır. Ardından StandardScaler ile normalize edilmiş 8 sayısal öznitelikle birleştirilerek $(1.629.206 \times 50.008)$ boyutunda bir birleşik öznitelik matrisi elde edilmiştir.
 
 \subsubsection{Dizi Kodlama (Sequence Encoding)}
-Derin öğrenme modelleri için Keras \texttt{Tokenizer} kullanılmıştır. En sık 50.000 kelime seçilmiş, her yorum 200 token uzunluğunda sabitlenmiştir (kısa yorumlar sıfırla doldurulmuş, uzun yorumlar kesilmiştir). Toplam sözlük büyüklüğü 222.483 benzersiz kelimedir.
+Derin öğrenme modelleri için Keras \texttt{Tokenizer} kullanılmıştır. Tokenizer yalnızca eğitim metinleri üzerinde eğitilmiş, en sık 50.000 kelime seçilmiş ve her yorum 200 token uzunluğunda sabitlenmiştir (kısa yorumlar sıfırla doldurulmuş, uzun yorumlar kesilmiştir). Bu yaklaşım, doğrulama ve test kümelerindeki kelimelerin sözlük öğrenimine etki etmesini engellemiştir.
 
 \subsection{Veri Bölütleme}
 Veri seti tabakalı örnekleme (stratified sampling) ile üç parçaya ayrılmıştır:
@@ -241,25 +249,30 @@ Veri seti tabakalı örnekleme (stratified sampling) ile üç parçaya ayrılmı
 \end{itemize}
 Her alt kümede sınıf dağılımı eşit (\%33,3) tutulmuştur.
 
+Tüm veri bölütleme işlemlerinde \texttt{RANDOM\_STATE=42} kullanılmış ve oluşan eğitim, doğrulama ve test indeksleri \texttt{features/} dizinine kaydedilmiştir. Bu indeksler sonraki eğitim ve değerlendirme notebook'larında yeniden kullanılarak modellerin aynı veri bölütleri üzerinde karşılaştırılması sağlanmıştır.
+
 \subsection{Model Mimarileri}
 
 \subsubsection{Lojistik Regresyon (LR)}
-TF-IDF + sayısal öznitelikler üzerinde eğitilmiştir. \texttt{max\_iter=2000}, \texttt{solver=`lbfgs'}, çok sınıflı strateji olarak \texttt{multi\_class=`multinomial'} kullanılmıştır. Tüm eğitim verisi (1.140.444 örnek) ile eğitilmiştir.
+TF-IDF + sayısal öznitelikler üzerinde eğitilmiştir. Modelde \texttt{C=1}, \texttt{solver=lbfgs}, \texttt{max\_iter=500} ve dengeli sınıf ağırlıkları kullanılmıştır. Tüm eğitim verisi (1.140.444 örnek) ile eğitilmiştir.
 
 \subsubsection{Destek Vektör Makineleri (SVM)}
 \texttt{LinearSVC} sınıflandırıcısı, \texttt{CalibratedClassifierCV} sarmalayıcısı ile olasılık tahmini yapabilir hâle getirilmiştir. TF-IDF + sayısal öznitelikler üzerinde tüm eğitim verisiyle eğitilmiştir.
 
 \subsubsection{LightGBM}
-Gradyan artırma (gradient boosting) çerçevesi olan LightGBM, TF-IDF öznitelikleri üzerinde eğitilmiştir. Büyük ve seyrek matrislerle verimli çalışabilme avantajı sunan bu model, tüm eğitim verisiyle eğitilmiştir.
+Gradyan artırma (gradient boosting) çerçevesi olan LightGBM, TF-IDF öznitelikleri üzerinde eğitilmiştir \cite{ke2017lightgbm}. Büyük ve seyrek matrislerle verimli çalışabilme avantajı sunan bu model, tüm eğitim verisiyle eğitilmiştir.
 
 \subsubsection{TextCNN}
-Kim \cite{kim2014convolutional}'in önerdiği CNN tabanlı metin sınıflandırma mimarisi uyarlanmıştır. 128 boyutlu gömme (embedding) katmanı, çoklu filtre boyutlarına sahip evrişim katmanları, global max pooling ve yoğun (dense) katmanlardan oluşmaktadır. CPU kısıtları nedeniyle 25.000 örneklik alt küme üzerinde eğitilmiştir.
+Kim \cite{kim2014convolutional}'in önerdiği CNN tabanlı metin sınıflandırma mimarisi uyarlanmıştır. 128 boyutlu gömme (embedding) katmanı, çoklu filtre boyutlarına sahip evrişim katmanları, global max pooling ve yoğun (dense) katmanlardan oluşmaktadır. Donanım ve süre kısıtları nedeniyle standart derin öğrenme modelleri 25.000 eğitim ve 5.000 doğrulama örneği içeren dengeli alt kümeler üzerinde eğitilmiştir.
 
 \subsubsection{FastText}
 Joulin ve ark. \cite{joulin2017bag}'nın yaklaşımından esinlenerek tasarlanmıştır. 128 boyutlu gömme katmanı, \texttt{GlobalAveragePooling1D}, 64 birimlik yoğun katman, \%30 Dropout ve softmax çıkış katmanından oluşmaktadır. Eğitim süresi yalnızca 12 saniyedir.
 
 \subsubsection{SGD Sınıflandırıcı}
 Stokastik Gradyan İnişi (SGD) tabanlı doğrusal sınıflandırıcı, log-loss kaybı ve dengeli sınıf ağırlıkları ile TF-IDF matrisi üzerinde eğitilmiştir.
+
+\subsubsection{DistilBERT (Transformer)}
+Transformer mimarilerinin performansını değerlendirmek amacıyla \texttt{distilbert-base-uncased} modeli için ayrı bir deney akışı hazırlanmıştır. DistilBERT, orijinal BERT modelinin daha hafif ve hızlı bir versiyonudur \cite{sanh2019distilbert}. Donanım maliyetini kontrol altında tutmak için model, resmi eğitim bölütünden seçilen dengeli bir alt küme üzerinde fine-tuning işlemine tabi tutulacak; doğrulama ve nihai test aşamalarında ise klasik modellerle aynı resmi veri bölütleri kullanılacaktır.
 
 % ============================================================
 \section{Deneysel Sonuçlar}
@@ -277,7 +290,7 @@ Model performansları aşağıdaki metriklerle değerlendirilmiştir:
 
 \subsection{Test Seti Sonuçları}
 
-Tablo~\ref{tab:test_sonuc}'da tüm modellerin test seti üzerindeki performansları sunulmaktadır.
+Tablo~\ref{tab:test_sonuc}'da nihai test seti üzerinde değerlendirilen modellerin performansları sunulmaktadır.
 
 \begin{table}[htbp]
 \centering
@@ -288,14 +301,16 @@ Tablo~\ref{tab:test_sonuc}'da tüm modellerin test seti üzerindeki performansla
 \toprule
 \textbf{Model} & \textbf{Doğr.} & \textbf{Kes.} & \textbf{Duy.} & \textbf{F1-M} \\
 \midrule
-\textbf{Lojistik Reg.} & \textbf{0,8039} & \textbf{0,8038} & \textbf{0,8039} & \textbf{0,8038} \\
-SVM & 0,8012 & 0,7996 & 0,8012 & 0,8002 \\
-FastText & 0,7562 & 0,7527 & 0,7562 & 0,7538 \\
+\textbf{Lojistik Reg.} & \textbf{0,8041} & \textbf{0,8040} & \textbf{0,8041} & \textbf{0,8040} \\
+SVM & 0,8012 & 0,7995 & 0,8012 & 0,8001 \\
+TextCNN & 0,7599 & 0,7667 & 0,7599 & 0,7614 \\
+FastText & 0,7584 & 0,7556 & 0,7584 & 0,7566 \\
 SGD & 0,7552 & 0,7523 & 0,7552 & 0,7530 \\
-TextCNN & 0,7481 & 0,7502 & 0,7481 & 0,7490 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+LightGBM, LSTM ve BiLSTM için elde edilen ek doğrulama sonuçları Tablo~\ref{tab:val_sonuc}'da verilmiştir. DistilBERT deneyi, klasik modellerle aynı resmi test indekslerini kullanacak şekilde yapılandırılmıştır; bu nedenle Transformer sonucu, ilgili notebook yeniden çalıştırıldığında ayrı olarak raporlanmalıdır.
 
 \begin{table}[htbp]
 \centering
@@ -306,86 +321,86 @@ TextCNN & 0,7481 & 0,7502 & 0,7481 & 0,7490 \\
 \toprule
 \textbf{Model} & \textbf{Doğruluk} & \textbf{F1-Makro} & \textbf{Veri Boyutu} \\
 \midrule
-Lojistik Reg. & 0,7979 & 0,7978 & Tam (1,14M) \\
-SVM & 0,7950 & 0,7940 & Tam (1,14M) \\
-LightGBM & 0,7923 & 0,7925 & Tam (1,14M) \\
-BiLSTM & 0,7432 & 0,7443 & Alt küme (25K) \\
-LSTM & 0,3342 & 0,1719 & Alt küme (25K) \\
+Lojistik Reg. & 0,7979 & 0,7978 & Tam \\
+SVM & 0,7950 & 0,7940 & Tam \\
+LightGBM & 0,7923 & 0,7925 & Tam \\
+BiLSTM & 0,7432 & 0,7443 & Alt küme \\
+LSTM & 0,3342 & 0,1719 & Alt küme \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Sonuçlar incelendiğinde, TF-IDF tabanlı klasik modellerin (LR, SVM, LightGBM) derin öğrenme modellerinden (TextCNN, FastText, BiLSTM) tutarlı bir şekilde daha iyi performans sergilediği görülmektedir. Bu durum, büyük ölçekli eğitim verisi avantajının ve TF-IDF'in 50.000 öznitelikli zengin temsilinin etkisiyle açıklanabilir.
+Sonuçlar incelendiğinde, TF-IDF tabanlı klasik modellerin (LR, SVM, LightGBM) standart derin öğrenme modellerinden (TextCNN, FastText, BiLSTM) tutarlı bir şekilde daha iyi performans sergilediği görülmektedir. Bu durum, büyük ölçekli eğitim verisi avantajının ve TF-IDF'in 50.000 öznitelikli zengin temsilinin etkisiyle açıklanabilir.
 
 \subsection{Karışıklık Matrisleri}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{confusion_matrix_Logistic_Regression.png}
+    \includegraphics{confusion_matrix_Logistic_Regression.png}
     \caption{Karışıklık Matrisi - Lojistik Regresyon}
     \label{fig:cm_lr}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{confusion_matrix_FastText.png}
+    \includegraphics{confusion_matrix_FastText.png}
     \caption{Karışıklık Matrisi - FastText}
     \label{fig:cm_ft}
 \end{figure}
 
-Karışıklık matrisleri (Şekil~\ref{fig:confusion}) incelendiğinde, tüm modellerde en yaygın hatanın ``Kötü'' ve ``Orta'' sınıfları arasındaki karışıklık olduğu gözlemlenmektedir. Bu durum, 2-3 yıldızlı yorumların dilsel olarak birbirine yakın olmasından kaynaklanmaktadır. ``İyi'' sınıfı ise tüm modellerde en yüksek doğrulukla sınıflandırılmaktadır.
+Karışıklık matrisleri (Şekil~\ref{fig:cm_lr} ve Şekil~\ref{fig:cm_ft}) incelendiğinde, tüm modellerde en yaygın hatanın ``Kötü'' ve ``Orta'' sınıfları arasındaki karışıklık olduğu gözlemlenmektedir. Bu durum, 2-3 yıldızlı yorumların dilsel olarak birbirine yakın olmasından kaynaklanmaktadır. ``İyi'' sınıfı ise tüm modellerde en yüksek doğrulukla sınıflandırılmaktadır.
 
 \subsection{ROC ve Precision-Recall Eğrileri}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{roc_curve_class_Bad.png}
+    \includegraphics{roc_curve_class_Bad.png}
     \caption{ROC Eğrisi - Kötü Sınıf}
     \label{fig:roc_bad}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{roc_curve_class_Middle.png}
+    \includegraphics{roc_curve_class_Middle.png}
     \caption{ROC Eğrisi - Orta Sınıf}
     \label{fig:roc_middle}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{roc_curve_class_Good.png}
+    \includegraphics{roc_curve_class_Good.png}
     \caption{ROC Eğrisi - İyi Sınıf}
     \label{fig:roc_good}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{pr_curve_class_Bad.png}
+    \includegraphics{pr_curve_class_Bad.png}
     \caption{Precision-Recall Eğrisi - Kötü Sınıf}
     \label{fig:pr_bad}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{pr_curve_class_Middle.png}
+    \includegraphics{pr_curve_class_Middle.png}
     \caption{Precision-Recall Eğrisi - Orta Sınıf}
     \label{fig:pr_middle}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{pr_curve_class_Good.png}
+    \includegraphics{pr_curve_class_Good.png}
     \caption{Precision-Recall Eğrisi - İyi Sınıf}
     \label{fig:pr_good}
 \end{figure}
 
-ROC eğrileri (Şekil~\ref{fig:roc}) ve Precision-Recall eğrileri (Şekil~\ref{fig:pr}), Lojistik Regresyon ve SVM modellerinin tüm sınıflarda yüksek AUC değerlerine sahip olduğunu doğrulamaktadır.
+ROC eğrileri (Şekil~\ref{fig:roc_bad}, Şekil~\ref{fig:roc_middle} ve Şekil~\ref{fig:roc_good}) ile Precision-Recall eğrileri (Şekil~\ref{fig:pr_bad}, Şekil~\ref{fig:pr_middle} ve Şekil~\ref{fig:pr_good}), Lojistik Regresyon ve SVM modellerinin tüm sınıflarda yüksek AUC değerlerine sahip olduğunu doğrulamaktadır.
 
 \subsection{Radar Grafik Karşılaştırması}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{model_comparison_radar.png}
+    \includegraphics{model_comparison_radar.png}
     \caption{Modellerin çoklu metrik radar grafiği karşılaştırması.}
     \label{fig:radar}
 \end{figure}
@@ -396,41 +411,41 @@ Radar grafiği (Şekil~\ref{fig:radar}), modellerin dört farklı metrik (Doğru
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{training_history_cnn_loss.png}
+    \includegraphics{training_history_cnn_loss.png}
     \caption{Eğitim Geçmişi - TextCNN Kayıp (Loss)}
     \label{fig:hist_cnn_loss}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{training_history_cnn_accuracy.png}
+    \includegraphics{training_history_cnn_accuracy.png}
     \caption{Eğitim Geçmişi - TextCNN Doğruluk (Acc)}
     \label{fig:hist_cnn_acc}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{training_history_fasttext_loss.png}
+    \includegraphics{training_history_fasttext_loss.png}
     \caption{Eğitim Geçmişi - FastText Kayıp (Loss)}
     \label{fig:hist_ft_loss}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{training_history_fasttext_accuracy.png}
+    \includegraphics{training_history_fasttext_accuracy.png}
     \caption{Eğitim Geçmişi - FastText Doğruluk (Acc)}
     \label{fig:hist_ft_acc}
 \end{figure}
 
-Derin öğrenme modellerinin eğitim geçmişleri (Şekil~\ref{fig:training}), EarlyStopping mekanizması sayesinde aşırı öğrenmenin (overfitting) kontrol altında tutulduğunu göstermektedir.
+Derin öğrenme modellerinin eğitim geçmişleri (Şekil~\ref{fig:hist_cnn_loss}, Şekil~\ref{fig:hist_cnn_acc}, Şekil~\ref{fig:hist_ft_loss} ve Şekil~\ref{fig:hist_ft_acc}), EarlyStopping mekanizması sayesinde aşırı öğrenmenin (overfitting) kontrol altında tutulduğunu göstermektedir.
 
 \subsection{Hata Analizi}
 
-En iyi performans gösteren model (Lojistik Regresyon) üzerinde detaylı hata analizi gerçekleştirilmiştir. Toplam 244.381 test örneğinden 47.914'ü (\%19,61) yanlış sınıflandırılmıştır.
+En iyi performans gösteren model (Lojistik Regresyon) üzerinde detaylı hata analizi gerçekleştirilmiştir. Toplam 244.381 test örneğinden yaklaşık 47.863'ü (\%19,59) yanlış sınıflandırılmıştır.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{error_analysis.png}
+    \includegraphics{error_analysis.png}
     \caption{En iyi modelin (LR) hata dağılımı matrisi.}
     \label{fig:error}
 \end{figure}
@@ -445,7 +460,7 @@ Model kararlarının şeffaflığını sağlamak amacıyla LIME yöntemi uygulan
 
 \subsection{Yön-Bazlı Duygu Analizi (ABSA)}
 
-Genel duygu sınıflandırmasının ötesinde, her yorumun cümle düzeyinde ayrıştırılarak belirli restoran boyutları (yönler) açısından analiz edilmesi gerçekleştirilmiştir. Tanımlanan yönler ve ilişkili anahtar kelimeler Tablo~\ref{tab:aspect}'te sunulmaktadır.
+Genel duygu sınıflandırmasının ötesinde, her yorumun cümle düzeyinde ayrıştırılarak belirli restoran boyutları (yönler) açısından analiz edilmesi gerçekleştirilmiştir. Bu modül, ana sınıflandırma sonuçlarını desteklemek amacıyla kullanılan kural tabanlı ve açıklayıcı bir analiz bileşenidir; ayrı bir gözetimli ABSA veri seti üzerinde eğitilmiş bağımsız bir model olarak değerlendirilmemelidir. Tanımlanan yönler ve ilişkili anahtar kelimeler Tablo~\ref{tab:aspect}'te sunulmaktadır.
 
 \begin{table}[htbp]
 \centering
@@ -466,12 +481,12 @@ Fiyat & price, cost, expensive, cheap, worth, value, bill, money \\
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=3cm]{aspect_based_sentiment.png}
+    \includegraphics{aspect_based_sentiment.png}
     \caption{Yön-bazlı duygu analizi sonuçları.}
     \label{fig:absa}
 \end{figure}
 
-10.000 örneklik bir alt kümede gerçekleştirilen ABSA analizinde toplam 22.710 yön-cümle eşleşmesi tespit edilmiştir (Şekil~\ref{fig:absa}). Yemek ve ambiyans yönlerinde olumlu duyguların ağırlıklı olduğu, servis yönünde ise olumsuz duyguların nispeten daha fazla olduğu gözlemlenmiştir.
+Gerçekleştirilen ABSA analizinde toplam 22.710 yön-cümle eşleşmesi tespit edilmiştir (Şekil~\ref{fig:absa}). Yemek ve ambiyans yönlerinde olumlu duyguların ağırlıklı olduğu, servis yönünde ise olumsuz duyguların nispeten daha fazla olduğu gözlemlenmiştir.
 
 % ============================================================
 \section{Web Uygulaması}
@@ -489,14 +504,15 @@ Projenin uygulamaya dönük boyutu olarak Flask tabanlı etkileşimli bir web uy
 \section{Tartışma}
 \label{sec:tartisma}
 
-\subsection{Klasik Modeller vs. Derin Öğrenme}
-Deneysel sonuçlar, TF-IDF tabanlı klasik modellerin (LR: \%80,39, SVM: \%80,12) derin öğrenme modellerinden (FastText: \%75,62, TextCNN: \%74,81) tutarlı bir şekilde daha iyi performans sergilediğini göstermektedir. Bu sonuç, aşağıdaki faktörlerle açıklanabilir:
+\subsection{Modellerin Karşılaştırmalı Analizi}
+Deneysel sonuçlar, TF-IDF tabanlı klasik modellerin (LR: \%80,41, SVM: \%80,12) standart derin öğrenme modellerinden (TextCNN: \%75,99, FastText: \%75,84) daha yüksek performans sergilediğini göstermektedir. Bu sonuç, aşağıdaki faktörlerle açıklanabilir:
 
 \begin{itemize}
-    \item \textbf{Eğitim verisi büyüklüğü:} Klasik modeller tüm eğitim verisiyle (1,14M örnek) eğitilirken, derin öğrenme modelleri CPU kısıtları nedeniyle yalnızca 25.000 örneklik alt kümelerle eğitilmiştir.
     \item \textbf{TF-IDF'in etkinliği:} Bigram (1,2) destekli 50.000 öznitelikli TF-IDF temsili, restoran yorumlarındaki ayırt edici kelime ve kelime çiftlerini etkili bir şekilde yakalamaktadır.
     \item \textbf{Görev karmaşıklığı:} 3 sınıflı duygu analizi, ikili (pozitif/negatif) sınıflandırmaya kıyasla daha zor bir görevdir. Özellikle ``Orta'' sınıfı, hem olumlu hem olumsuz ifadeler içerebilmektedir.
 \end{itemize}
+
+Transformer tabanlı DistilBERT deneyi, resmi eğitim/doğrulama/test bölütleriyle uyumlu olacak şekilde ayrıca yapılandırılmıştır. Bu modelin nihai sonucu, aynı test indeksleri üzerinde yeniden üretildiğinde klasik modellerle doğrudan karşılaştırılabilir hâle gelecektir. Bu ayrım, farklı örneklem bölütleriyle elde edilen sonuçların aynı tabloda karşılaştırılmasından doğabilecek metodolojik yanlılığı azaltmaktadır.
 
 \subsection{LSTM Performansı}
 LSTM modelinin son derece düşük performansı (\%33,42 doğruluk — rastgele tahmin seviyesi) dikkat çekicidir. Bu durum, yetersiz eğitim verisi, hiperparametre optimizasyonunun yapılmamış olması ve sınırlı eğitim epoch sayısıyla açıklanabilir. Buna karşın, BiLSTM modeli \%74,32 doğrulukla çift yönlü bağlam yakalama avantajını göstermiştir.
@@ -504,8 +520,8 @@ LSTM modelinin son derece düşük performansı (\%33,42 doğruluk — rastgele 
 \subsection{Sınırlamalar ve Gelecek Çalışmalar}
 \begin{itemize}
     \item Derin öğrenme modelleri GPU ile tam veri seti üzerinde eğitildiğinde performanslarının önemli ölçüde artması beklenmektedir.
-    \item BERT, RoBERTa gibi önceden eğitilmiş Transformer modelleri, ince ayar (fine-tuning) ile daha yüksek doğruluk sağlayabilir.
-    \item ABSA modülü, kural tabanlı yaklaşım yerine dizin tabanlı (sequence labeling) yöntemlerle geliştirilebilir.
+    \item DistilBERT deneyi resmi test indeksleriyle yeniden çalıştırıldıktan sonra RoBERTa veya BERT-Large gibi daha büyük Transformer modelleriyle karşılaştırmalı deneyler yapılabilir.
+    \item ABSA modülü, mevcut kural tabanlı yaklaşım yerine etiketlenmiş bir veri seti üzerinde eğitilen dizin tabanlı (sequence labeling) yöntemlerle geliştirilebilir ve ayrı metriklerle değerlendirilebilir.
     \item Çapraz dil desteği eklenerek farklı dillerdeki yorumlar da analiz edilebilir.
 \end{itemize}
 
@@ -516,14 +532,15 @@ LSTM modelinin son derece düşük performansı (\%33,42 doğruluk — rastgele 
 Bu çalışmada, Yelp açık veri setinden elde edilen 1,6 milyon restoran yorumu üzerinde kapsamlı bir metin madenciliği ve duygu analizi sistemi tasarlanmış ve uygulanmıştır. Çalışmanın temel bulguları şu şekilde özetlenebilir:
 
 \begin{enumerate}
-    \item Lojistik Regresyon, TF-IDF öznitelikleriyle \%80,39 doğruluk ve \%80,38 F1-Makro skoru elde ederek en yüksek performansı sergilemiştir.
-    \item Klasik makine öğrenmesi modelleri, sınırlı kaynaklarla eğitilen derin öğrenme modellerinden tutarlı bir şekilde üstün performans göstermiştir.
+    \item Lojistik Regresyon, TF-IDF öznitelikleriyle \%80,41 doğruluk ve \%80,40 F1-Makro skoru elde ederek en yüksek performansı sergilemiştir.
+    \item Klasik makine öğrenmesi modelleri, sınırlı kaynaklarla eğitilen standart derin öğrenme modellerinden tutarlı bir şekilde üstün performans göstermiştir.
+    \item DistilBERT deney akışı, aynı resmi test bölütleriyle karşılaştırılabilir Transformer tabanlı bir değerlendirme yapılacak şekilde düzenlenmiştir.
     \item TextBlob duygu polaritesi, sınıflar arası güçlü ayırt edicilik özelliği taşımaktadır.
     \item LIME analizi, modelin semantik olarak anlamlı kelime-duygu ilişkilerini öğrendiğini doğrulamıştır.
     \item ABSA ile restoran deneyiminin farklı boyutları başarılı bir şekilde ayrıştırılmıştır.
 \end{enumerate}
 
-Sonuç olarak, önceden eğitilmiş Transformer modelleri kullanılmadan, iyi tasarlanmış bir öznitelik mühendisliği boru hattı ve klasik makine öğrenmesi algoritmaları ile 3 sınıflı subjektif bir NLP görevinde \%80'in üzerinde başarı elde edilebileceği gösterilmiştir. Bu sonuç, kaynak kısıtlı ortamlarda klasik yaklaşımların hâlâ rekabetçi olduğunu ortaya koymaktadır.
+Sonuç olarak, veri sızıntısını önleyen bir öznitelik mühendisliği boru hattı ve klasik makine öğrenmesi algoritmaları ile 3 sınıflı subjektif bir NLP görevinde \%80'in üzerinde başarı elde edilebileceği gösterilmiştir. Transformer tabanlı modeller için hazırlanan resmi bölüt uyumlu deney akışı, gelecek çalışmalarda daha güçlü dil modellerinin adil biçimde karşılaştırılmasına olanak sağlayacaktır.
 
 % ============================================================
 \begin{thebibliography}{99}
@@ -552,8 +569,17 @@ S. Hochreiter and J. Schmidhuber, ``Long short-term memory,'' \textit{Neural Com
 \bibitem{joulin2017bag}
 A. Joulin, E. Grave, P. Bojanowski, and T. Mikolov, ``Bag of tricks for efficient text classification,'' in \textit{Proc. 15th Conf. European Chapter of the Association for Computational Linguistics (EACL)}, 2017, pp. 427--431.
 
+\bibitem{ke2017lightgbm}
+G. Ke, Q. Meng, T. Finley, T. Wang, W. Chen, W. Ma, Q. Ye, and T.-Y. Liu, ``LightGBM: A highly efficient gradient boosting decision tree,'' in \textit{Advances in Neural Information Processing Systems}, 2017, pp. 3146--3154.
+
 \bibitem{ribeiro2016why}
 M. T. Ribeiro, S. Singh, and C. Guestrin, ``Why should I trust you? Explaining the predictions of any classifier,'' in \textit{Proc. 22nd ACM SIGKDD Int. Conf. Knowledge Discovery and Data Mining}, 2016, pp. 1135--1144.
+
+\bibitem{devlin2018bert}
+J. Devlin, M. W. Chang, K. Lee, and K. Toutanova, ``BERT: Pre-training of deep bidirectional transformers for language understanding,'' \textit{arXiv preprint arXiv:1810.04805}, 2018.
+
+\bibitem{sanh2019distilbert}
+V. Sanh, L. Debut, J. Chaumond, and T. Wolf, ``DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter,'' \textit{arXiv preprint arXiv:1910.01108}, 2019.
 
 \end{thebibliography}
 

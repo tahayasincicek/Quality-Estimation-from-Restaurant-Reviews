@@ -1,22 +1,32 @@
 {% extends "base.html" %}
 {% block title %}Analyze - ReviewSentiment{% endblock %}
 {% block content %}
-<h1 class="page-title">Review Analysis</h1>
-<p class="page-desc">Enter a restaurant review to predict quality.</p>
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Review Analysis</h1>
+    <p class="page-desc">Enter a restaurant review to predict quality.</p>
+  </div>
+  <div class="page-meta">
+    <span class="meta-pill">3-class sentiment</span>
+    <span class="meta-pill">ABSA enabled</span>
+  </div>
+</div>
 
 <div class="predict-grid">
   <!-- Sol: Input -->
-  <div>
+  <section class="tool-panel">
     <div class="form-group">
       <label class="form-label">Model</label>
       <div class="btn-group" id="model-select">
-        <button class="btn active" data-model="lr">LR</button>
-        <button class="btn" data-model="svm">SVM</button>
-        <button class="btn" data-model="cnn">TextCNN</button>
-        <button class="btn" data-model="fasttext">FastText</button>
-        <button class="btn" data-model="sgd">SGD</button>
-        <button class="btn" data-model="bert">BERT</button>
+        <button class="btn active" data-model="lr" {% if models_status.lr != 'ok' %}disabled{% endif %}>LR</button>
+        <button class="btn" data-model="svm" {% if models_status.svm != 'ok' %}disabled{% endif %}>SVM</button>
+        <button class="btn" data-model="lgbm" {% if models_status.lgbm != 'ok' %}disabled{% endif %}>LightGBM</button>
+        <button class="btn" data-model="cnn" {% if models_status.cnn != 'ok' %}disabled{% endif %}>TextCNN</button>
+        <button class="btn" data-model="fasttext" {% if models_status.fasttext != 'ok' %}disabled{% endif %}>FastText</button>
+        <button class="btn" data-model="sgd" {% if models_status.sgd != 'ok' %}disabled{% endif %}>SGD</button>
+        <button class="btn" data-model="bert" {% if models_status.bert != 'ok' %}disabled{% endif %}>BERT</button>
       </div>
+      <div class="model-hint">Unavailable models are disabled automatically based on saved artifacts in <code>models/</code>.</div>
     </div>
 
     <div class="form-group">
@@ -33,22 +43,24 @@
       </div>
     </div>
     
-    <div style="margin-top: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
-      <button class="btn" id="btn-random-review" style="background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--fg-default); display: flex; align-items: center; gap: 8px;">
+    <div class="action-row">
+      <button class="btn" id="btn-random-review">
+        <i data-lucide="shuffle"></i>
         Load Random Review from Dataset
       </button>
-      <span id="current-reviewer-stats" style="font-size: 12px; color: var(--fg-muted); display: none;"></span>
+      <span id="current-reviewer-stats" class="reviewer-stats" style="display: none;"></span>
     </div>
 
-    <button class="btn btn-primary btn-full" id="btn-analyze">Analyze</button>
-  </div>
+    <button class="btn btn-primary btn-full" id="btn-analyze"><i data-lucide="sparkles"></i> Analyze Review</button>
+  </section>
 
-  <!-- Sağ: Result -->
-  <div>
+  <!-- Right: Result -->
+  <section class="tool-panel">
     <label class="form-label">Analysis Result</label>
     
     <div id="result-empty" class="result-empty">
-      Results will appear here.
+      <i data-lucide="scan-search"></i>
+      <span>Results will appear here.</span>
     </div>
 
     <div id="result-content" style="display: none;">
@@ -58,24 +70,24 @@
       </div>
       <div class="result-meta">Analysis completed in <span id="res-time"></span></div>
       
-      <div id="sarcasm-alert" style="display: none; background-color: #ffe0b2; color: #e65100; padding: 10px; border-radius: 6px; margin-top: 15px; font-weight: 500; border-left: 4px solid #ff9800; font-size: 14px;">
+      <div id="sarcasm-alert" class="alert-box alert-warning" style="display: none;">
         <span style="font-weight: bold; margin-right: 5px;">Sarcasm Detected!</span> 
         The true sentiment might be negative despite some positive words.
       </div>
       
-      <div id="profiler-alert-spam" style="display: none; background-color: #ffebee; color: #c62828; padding: 10px; border-radius: 6px; margin-top: 15px; font-weight: 500; border-left: 4px solid #f44336; font-size: 14px;">
+      <div id="profiler-alert-spam" class="alert-box alert-danger" style="display: none;">
         <span style="font-weight: bold; margin-right: 5px;">Fake Review Risk!</span> 
         <span id="profiler-spam-msg"></span>
       </div>
 
-      <div id="profiler-alert-trusted" style="display: none; background-color: #e8f5e9; color: #2e7d32; padding: 10px; border-radius: 6px; margin-top: 15px; font-weight: 500; border-left: 4px solid #4caf50; font-size: 14px;">
+      <div id="profiler-alert-trusted" class="alert-box alert-success" style="display: none;">
         <span style="font-weight: bold; margin-right: 5px;">Trusted Reviewer!</span> 
         <span id="profiler-trusted-msg"></span>
       </div>
       
       <div id="aspect-insights-container" style="display: none; margin-top: 20px;">
         <div class="section-label" style="margin-bottom: 8px;">Actionable Insights (ABSA)</div>
-        <div id="aspect-insights-content" style="background: var(--bg-surface); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
+        <div id="aspect-insights-content" class="aspect-insights-content">
         </div>
       </div>
 
@@ -101,28 +113,30 @@
       <div id="res-stats" class="result-stats"></div>
 
       <div class="section-label">Word Impact</div>
-      <div style="height: 200px; width: 100%;">
+      <div class="chart-box chart-box-sm">
         <canvas id="word-impact-chart"></canvas>
       </div>
     </div>
-  </div>
+  </section>
 </div>
 
-<div class="mt-24" style="padding-top: 40px;">
+<section class="table-panel mt-24">
   <div class="section-label">All Models</div>
-  <table>
-    <thead>
-      <tr>
-        <th>Model</th>
-        <th>Type</th>
-        <th>Prediction</th>
-        <th>Confidence</th>
-        <th>Time</th>
-      </tr>
-    </thead>
-    <tbody id="all-models-tbody">
-      <tr><td colspan="5" class="text-faint">Run analysis to see all models.</td></tr>
-    </tbody>
-  </table>
-</div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Type</th>
+          <th>Prediction</th>
+          <th>Confidence</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody id="all-models-tbody">
+        <tr><td colspan="5" class="text-faint">Run analysis to see all models.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 {% endblock %}
