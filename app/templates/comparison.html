@@ -55,11 +55,9 @@
       <tr><td>TextCNN</td><td>0.760</td><td>0.767</td><td>0.760</td><td>0.761</td><td><span class="split-badge">Test</span></td></tr>
       <tr><td>FastText</td><td>0.758</td><td>0.756</td><td>0.758</td><td>0.757</td><td><span class="split-badge">Test</span></td></tr>
       <tr><td>SGD</td><td>0.755</td><td>0.752</td><td>0.755</td><td>0.753</td><td><span class="split-badge">Test</span></td></tr>
-      <tr><td>LightGBM</td><td>0.792</td><td>0.793</td><td>0.792</td><td>0.793</td><td><span class="split-badge split-badge-muted">Validation</span></td></tr>
     </tbody>
   </table>
 </div>
-<p class="table-note">LightGBM is shown with validation metrics because the latest official test CSV does not include a LightGBM test row yet.</p>
 
 <div class="tab-bar mt-24">
   <button class="tab-btn active" data-target="tab-metrics">Metrics</button>
@@ -80,7 +78,6 @@
     <div class="btn-group mb-16 btn-wrap" id="cm-btns">
       <button class="btn active" data-model="lr">LR</button>
       <button class="btn" data-model="svm">SVM</button>
-      <button class="btn" data-model="lgbm">LightGBM</button>
       <button class="btn" data-model="cnn">TextCNN</button>
       <button class="btn" data-model="fasttext">FastText</button>
       <button class="btn" data-model="sgd">SGD</button>

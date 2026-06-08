@@ -20,7 +20,6 @@
       <div class="btn-group" id="bulk-model-select" style="display:flex;">
         <button class="btn active" data-model="lr" {% if models_status.lr != 'ok' %}disabled{% endif %}>LR</button>
         <button class="btn" data-model="svm" {% if models_status.svm != 'ok' %}disabled{% endif %}>SVM</button>
-        <button class="btn" data-model="lgbm" {% if models_status.lgbm != 'ok' %}disabled{% endif %}>LightGBM</button>
         <button class="btn" data-model="cnn" {% if models_status.cnn != 'ok' %}disabled{% endif %}>TextCNN</button>
       </div>
       <div class="model-hint">Batch mode is capped at 500 reviews for interactive use.</div>

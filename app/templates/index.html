@@ -20,7 +20,6 @@
       <div class="btn-group" id="model-select">
         <button class="btn active" data-model="lr" {% if models_status.lr != 'ok' %}disabled{% endif %}>LR</button>
         <button class="btn" data-model="svm" {% if models_status.svm != 'ok' %}disabled{% endif %}>SVM</button>
-        <button class="btn" data-model="lgbm" {% if models_status.lgbm != 'ok' %}disabled{% endif %}>LightGBM</button>
         <button class="btn" data-model="cnn" {% if models_status.cnn != 'ok' %}disabled{% endif %}>TextCNN</button>
         <button class="btn" data-model="fasttext" {% if models_status.fasttext != 'ok' %}disabled{% endif %}>FastText</button>
         <button class="btn" data-model="sgd" {% if models_status.sgd != 'ok' %}disabled{% endif %}>SGD</button>

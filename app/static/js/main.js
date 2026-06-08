@@ -24,9 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function initComparisonCharts() {
     if (!document.getElementById('metrics-chart') || !window.drawGroupedBar || !window.drawRadar) return;
-    const models = ['LR', 'SVM', 'TextCNN', 'FastText', 'SGD', 'LightGBM'];
-    const acc = [0.804, 0.801, 0.760, 0.758, 0.755, 0.792];
-    const f1 = [0.804, 0.800, 0.761, 0.757, 0.753, 0.793];
+    const models = ['LR', 'SVM', 'TextCNN', 'FastText', 'SGD'];
+    const acc = [0.804, 0.801, 0.760, 0.758, 0.755];
+    const f1 = [0.804, 0.800, 0.761, 0.757, 0.753];
     drawGroupedBar('metrics-chart', models, [acc, f1], ['Accuracy', 'F1 Score']);
 
     drawRadar('radar-chart', ['Accuracy', 'Precision', 'Recall', 'F1 Score'], [
@@ -34,8 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
       [0.801, 0.800, 0.801, 0.800],
       [0.760, 0.767, 0.760, 0.761],
       [0.758, 0.756, 0.758, 0.757],
-      [0.755, 0.752, 0.755, 0.753],
-      [0.792, 0.793, 0.792, 0.793]
+      [0.755, 0.752, 0.755, 0.753]
     ], models);
   }
 

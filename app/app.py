@@ -56,7 +56,7 @@ vectorizer = None
 scaler = None
 tokenizer = None
 models_status = {
-    'lr': 'err', 'svm': 'err', 'lgbm': 'err', 'sgd': 'err', 'cnn': 'err', 'fasttext': 'err', 'bert': 'err'
+    'lr': 'err', 'svm': 'err', 'sgd': 'err', 'cnn': 'err', 'fasttext': 'err', 'bert': 'err'
 }
 
 def load_resources():
@@ -78,10 +78,6 @@ def load_resources():
             models['svm'] = joblib.load(os.path.join(MODELS_DIR, 'svm_model.pkl'))
             models_status['svm'] = 'ok'
 
-        if os.path.exists(os.path.join(MODELS_DIR, 'lgbm_model.pkl')):
-            models['lgbm'] = joblib.load(os.path.join(MODELS_DIR, 'lgbm_model.pkl'))
-            models_status['lgbm'] = 'ok'
-            
         if os.path.exists(os.path.join(MODELS_DIR, 'cnn_model.h5')):
             models['cnn'] = keras.models.load_model(os.path.join(MODELS_DIR, 'cnn_model.h5'))
             models_status['cnn'] = 'ok'
@@ -186,7 +182,7 @@ def get_prediction(text, model_name='lr'):
     pred_idx = 1
     conf_dict = {'poor': 0, 'average': 0, 'good': 0}
     
-    if model_name in ['lr', 'svm', 'lgbm', 'sgd'] and vectorizer and scaler:
+    if model_name in ['lr', 'svm', 'sgd'] and vectorizer and scaler:
         tfidf_mat = vectorizer.transform([cleaned])
         
         # Simple top words based on tfidf
@@ -289,7 +285,7 @@ def predict():
     
     # Run all models quickly for the "All Models" table
     all_models_res = []
-    for m in ['lr', 'svm', 'lgbm', 'sgd', 'cnn', 'fasttext', 'bert']:
+    for m in ['lr', 'svm', 'sgd', 'cnn', 'fasttext', 'bert']:
         if m in models:
             m_res = get_prediction(text, m)
             if m == 'bert':
@@ -336,7 +332,6 @@ def get_confusion(model):
     cmap = {
         'lr': 'confusion_matrix_Logistic_Regression.png',
         'svm': 'confusion_matrix_SVM.png',
-        'lgbm': 'confusion_matrix_LightGBM.png',
         'sgd': 'confusion_matrix_SGD.png',
         'cnn': 'confusion_matrix_TextCNN.png',
         'fasttext': 'confusion_matrix_FastText.png'
