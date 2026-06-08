@@ -48,14 +48,7 @@
       </nav>
 
       <div class="sidebar-bottom">
-        <div class="model-status-list">
-          {% for m, status in models_status.items() %}
-          <div class="model-status-item">
-            <span class="status-dot {% if status == 'ok' %}ok{% else %}err{% endif %}" title="{{status}}"></span>
-            {{ m | upper }}
-          </div>
-          {% endfor %}
-        </div>
+
         <button id="theme-toggle" class="theme-btn">
           <i data-lucide="sun"></i> Light
         </button>
