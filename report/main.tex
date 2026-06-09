@@ -656,8 +656,35 @@ Modele girmeden önce metindeki olumsuzlama yapılarını tespit edip anlamlı h
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\columnwidth]{webapp_compare.png}
-    \caption{Web uygulaması model karşılaştırma (Comparison) ekranı.}
+    \caption{Web uygulaması model karşılaştırma (Comparison) ekranı genel görünümü.}
     \label{fig:webapp_compare}
+\end{figure}
+
+Model Karşılaştırma (Model Comparison) modülünün detaylı metrikler arayüzü (Şekil~\ref{fig:webapp_comparison_metrics}), sistemde eğitilen tüm modellerin performansını özetlemektedir. En yüksek F1 skoruna sahip modelin, en yüksek doğruluk oranının ve çıkarım süresi açısından en hızlı modelin (Lojistik Regresyon) öne çıkarıldığı bilgi kartları ve karşılaştırmalı liste sayesinde modeller arası farklar kolaylıkla incelenebilmektedir.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\columnwidth]{webapp_comparison_metrics.png}
+    \caption{Web uygulaması model karşılaştırma detaylı metrik tablosu.}
+    \label{fig:webapp_comparison_metrics}
+\end{figure}
+
+Toplu Analiz (Bulk Analysis) arayüzü (Şekil~\ref{fig:webapp_bulk}), kullanıcıların 500 yoruma kadar CSV formatında dosya yükleyerek veya doğrudan metin girerek toplu tahmin yapmasını sağlar. Seçilen modele (örn. Lojistik Regresyon, SVM, TextCNN) göre tahmin sonuçları ve güven skorları tablo halinde listelenirken, duygu dağılımı sağ üstteki pasta grafiği ile özetlenmektedir.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\columnwidth]{webapp_bulk.png}
+    \caption{Web uygulaması toplu analiz (Bulk Analysis) ekranı.}
+    \label{fig:webapp_bulk}
+\end{figure}
+
+Veri Analizi (Data Analysis) ekranı (Şekil~\ref{fig:webapp_eda}), eğitimde kullanılan veri setinin genel istatistiklerini etkileşimli bir arayüzle sunmaktadır. Toplam 1.629.279 yorum, 52.268 restoran, 3.82 ortalama yıldız puanı ve 2005-2022 zaman aralığı gibi temel bilgilerin yanı sıra sınıfların dengeli dağılımını gösteren dinamik sütun grafikleri yer almaktadır.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\columnwidth]{webapp_eda.png}
+    \caption{Web uygulaması keşifsel veri analizi (Data Analysis) ekranı.}
+    \label{fig:webapp_eda}
 \end{figure}
 
 % ============================================================
