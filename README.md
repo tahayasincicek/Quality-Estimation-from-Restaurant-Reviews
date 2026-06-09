@@ -1,4 +1,5 @@
-# Restaurant Review Quality Mining with Yelp
+# Yelp Restoran Yorumlarından Metin Madenciliği ile Kalite Tahmini 
+*(Quality Prediction Using Text Mining on Yelp Restaurant Reviews)*
 
 ![Python](https://img.shields.io/badge/Python-3.13-blue.svg)
 ![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.5+-yellow.svg)
@@ -7,225 +8,79 @@
 ![Transformers](https://img.shields.io/badge/HuggingFace-Transformers-yellow.svg)
 ![Flask](https://img.shields.io/badge/Flask-Web_App-black.svg)
 
-This project is a full text-mining pipeline for restaurant review quality prediction on the Yelp Open Dataset. It covers data preparation, exploratory analysis, preprocessing, feature extraction, model training, model evaluation, explainability, aspect-based sentiment analysis, DistilBERT fine-tuning, and a Flask web application for interactive inference.
+Bu proje, Yelp Açık Veri Seti'ndeki (Yelp Open Dataset) restoran yorumlarını kullanarak müşteri deneyimlerinin kalitesini tahmin etmeyi amaçlayan kapsamlı bir metin madenciliği (text mining) ve doğal dil işleme (NLP) boru hattıdır. Proje, veri hazırlama, keşifsel veri analizi (EDA), metin ön işleme, öznitelik çıkarımı, model eğitimi, model değerlendirme, yön-bazlı duygu analizi (ABSA), açıklanabilir yapay zeka (LIME) ve etkileşimli bir Flask web uygulamasını içermektedir.
 
-The main prediction task is 3-class review quality classification:
+Temel tahmin görevi, yorumların kalite/duygu açısından 3 sınıfa ayrılmasıdır:
+- `0` Kötü (Poor / Bad) - 1 ve 2 Yıldız
+- `1` Orta (Average / Neutral) - 3 Yıldız
+- `2` İyi (Good) - 4 ve 5 Yıldız
 
-- `0` Poor / Bad
-- `1` Average / Neutral
-- `2` Good
+## 📌 Proje Kapsamı ve Öne Çıkan Özellikler
 
-## Project Scope
+- **Veri Sızıntısını Önleyen Tasarım (Data Leakage Prevention):** Eğitim, doğrulama ve test ayrımı, TF-IDF, tokenizer ve ölçekleyiciler uygulanmadan önce yapılmış; böylece test seti hiçbir şekilde eğitim aşamasına sızmamıştır.
+- **Dengeli Veri Seti:** Azınlık sınıflarına göre (Orta sınıfı) alt-örnekleme yapılarak her sınıftan 543.093 örnek olacak şekilde toplam ~1.62 milyon yorumla dengeli bir veri seti oluşturulmuştur.
+- **Kapsamlı Klasik ve Derin Öğrenme Modelleri:** Lojistik Regresyon, Destek Vektör Makineleri (SVM), SGD, LightGBM gibi klasik modeller ile TextCNN, FastText, LSTM, BiLSTM, CNN-LSTM gibi derin öğrenme mimarileri kıyaslanmıştır.
+- **DistilBERT Entegrasyonu:** Orijinal eğitim bölütü üzerinde `distilbert-base-uncased` modeli kullanılarak Transformer tabanlı ince ayar (fine-tuning) yapılmıştır.
+- **LIME ile Açıklanabilir Yapay Zeka (XAI):** Modellerin tahmin kararlarının hangi kelimelere ve köklere bağlı olduğu kelime ağırlıklarıyla görselleştirilmiştir.
+- **Yön-Bazlı Duygu Analizi (ABSA):** Yorumlar cümle bazlı ayrıştırılıp *Yemek, Servis, Ambiyans* ve *Fiyat* gibi spesifik boyutlarda değerlendirilmiştir.
+- **Gelişmiş Web Uygulaması:** Eğitilen tüm modellerin entegre edildiği etkileşimli bir arayüz geliştirilmiştir.
 
-The project includes:
+## 🚀 Web Uygulaması Gelişmiş Modülleri
 
-- Yelp restaurant review filtering and class balancing.
-- Exploratory data analysis with class distributions, length analysis, time trends, word clouds, top words, bigrams, and correlation plots.
-- Leakage-safe train/validation/test splitting before feature fitting.
-- TF-IDF word features, optional character TF-IDF, numeric text features, scaling, and Keras sequence tokenization.
-- Classical ML models: Logistic Regression, Linear SVM, SGD Classifier, and LightGBM.
-- Deep learning models: TextCNN, FastText-style model, LSTM, BiLSTM, CNN-LSTM, and MLP artifacts.
-- Transformer model: DistilBERT fine-tuned on the official training split and evaluated on the official test split.
-- Model evaluation with confusion matrices, ROC curves, PR curves, training histories, radar/bar comparisons, error analysis, and feature ablation.
-- LIME explanation output for local interpretability.
-- Rule-based ABSA for food, service, ambience, and price dimensions.
-- Flask web app with single-review analysis, all-model comparison, bulk CSV prediction, EDA pages, sarcasm detection, reviewer useful-vote profiling, and text decoding helpers.
+Flask tabanlı web uygulaması (`app/app.py`), temel çıkarım işlemlerine ek olarak yenilikçi analiz katmanları içermektedir:
+1. **Alaycılık (Sarcasm) Tespiti:** Kural tabanlı stratejilerle (örneğin olumlu sıfatların ünlemle birlikte olumsuz bir bağlamda kullanılması) alaycı yorumları tespit edip kullanıcıyı uyarır.
+2. **Metin Kod Çözümü (Text Decoder):** Emojileri (örn. 🔥 $\rightarrow$ excellent) ve internet argosunu (örn. tbh, ngl) NLP dostu kelimelere çevirerek modele besler.
+3. **Yorumcu Profilleme (Reviewer Profiler):** Kullanıcıların "faydalı" (useful) oy sayılarını inceleyerek, çok düşük oylu ancak aşırı uçlarda yorum yapan hesaplar için spam/sahte yorum riski uyarısı verir.
+4. **Olumsuzluk İşleme (Negation Handling):** Ön işleme sırasında "not bad" ifadesini "good" olarak, "not expensive" ifadesini "cheap" olarak dönüştüren özel bir modül kullanır.
 
-## Repository Layout
+## 📊 Deneysel Sonuçlar
 
-```text
-.
-|-- 01_data_preparation.ipynb
-|-- 02_eda.ipynb
-|-- 03_text_preprocessing.ipynb
-|-- 04_feature_extraction.ipynb
-|-- 05_model_training.ipynb
-|-- 06_model_evaluation.ipynb
-|-- 07_aspect_based_sentiment.ipynb
-|-- 08_bert_model.ipynb
-|-- app/
-|   |-- app.py
-|   |-- aspect_analyzer.py
-|   |-- reviewer_profiler.py
-|   |-- sarcasm_detector.py
-|   |-- text_decoder.py
-|   |-- templates/
-|   `-- static/
-|-- report/
-|   |-- main.tex
-|   `-- figures/
-|-- requirements.txt
-`-- README.md
-```
+Modeller aynı resmi test indeksleri üzerinde değerlendirilmiştir. Klasik modeller arasında en iyi sonucu Lojistik Regresyon vermiştir:
 
-Large generated artifacts are intentionally ignored by Git:
+| Model | Doğruluk (Accuracy) | Kesinlik (Precision) | Duyarlılık (Recall) | F1-Makro Skoru |
+|-------|--------------------|----------------------|---------------------|----------------|
+| **Lojistik Regresyon** | **%80,41** | **%80,39** | **%80,41** | **%80,40** |
+| **SVM** | %80,12 | %79,96 | %80,12 | %80,02 |
+| **TextCNN** | %76,24 | %76,27 | %76,24 | %76,24 |
+| **FastText** | %75,82 | %75,82 | %75,82 | %75,76 |
+| **SGD** | %75,52 | %75,23 | %75,52 | %75,30 |
 
-- `data/`
-- `features/`
-- `models/`
-- `results/`
-- `bert_results/`
-- `Yelp JSON/`
-- `Yelp-JSON.zip`
+*Not: DistilBERT gibi Transformer mimarileri ve diğer derin öğrenme sonuçları ilgili rapor/notebook'larda mevcuttur.*
 
-Run the notebooks in order to regenerate them.
+## 📂 Repozitörü ve Notebook Boru Hattı (Pipeline)
 
-## Setup
+Sistemi baştan uca çalıştırmak ve çıktıları yeniden üretmek için notebook'ları aşağıdaki sırayla çalıştırınız:
 
-Create and activate a virtual environment:
+1. `01_data_preparation.ipynb`: Yelp veri setinden restoranları süzer, 3 sınıfa eşleştirir ve veriyi dengeler.
+2. `02_eda.ipynb`: Kelime bulutları, yorum uzunluğu trendleri, N-gram ve sosyal metrik analizlerini (Kruskal-Wallis, Spearman) gerçekleştirir.
+3. `03_text_preprocessing.ipynb`: Metin temizliği, emoji çıkarımı (Eğitim seti için), stopword temizliği (olumsuzluklar korunarak) ve TextBlob üzerinden ek öznitelik çıkarımı yapar.
+4. `04_feature_extraction.ipynb`: Eğitim, doğrulama, test ayrımını yapar. Sadece eğitim verisi üzerinde TF-IDF ve Tokenizer'ı *fit* eder.
+5. `05_model_training.ipynb`: Klasik makine öğrenmesi ve sinir ağları modellerini eğitir ve `models/` altına kaydeder.
+6. `06_model_evaluation.ipynb`: Modelleri test seti üzerinde değerlendirir; ROC/PR eğrileri, karışıklık matrisleri ve hata analizi çıktılarını üretir.
+7. `07_aspect_based_sentiment.ipynb`: ABSA kural setlerini çalıştırarak duygu yönlerini (Yemek, Servis vs.) belirler.
+8. `08_bert_model.ipynb`: `distilbert-base-uncased` modelini PyTorch ile ince ayardan geçirerek değerlendirir.
 
+## 💻 Kurulum ve Çalıştırma
+
+**1. Gerekli kütüphaneleri yükleyin:**
 ```bash
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 ```
+*(Proje Python 3.13 ile geliştirilmiştir. Derin öğrenme paketleri için donanımınıza uygun tekerlekleri (wheels) veya Python 3.11/3.12 kullanabilirsiniz.)*
 
-The project was developed with Python 3.13. Some ML libraries may be easier to install on Python 3.11 or 3.12 depending on the local machine, CUDA setup, and wheel availability.
-
-## Data
-
-The pipeline expects the Yelp Open Dataset files locally. The raw dataset is not committed because it is large.
-
-Typical source layout:
-
-```text
-Yelp JSON/
-└── yelp_academic_dataset_review.json
-```
-
-`01_data_preparation.ipynb` filters restaurant reviews, maps star ratings into the 3 target classes, balances the dataset, and writes prepared data under `data/`.
-
-## Notebook Pipeline
-
-Run notebooks in this order:
-
-1. `01_data_preparation.ipynb`
-   - Loads Yelp review data.
-   - Filters and balances classes.
-   - Creates the prepared review dataset.
-
-2. `02_eda.ipynb`
-   - Produces class distribution, review length, word count, time trend, top-word, bigram, word-cloud, and statistical EDA outputs.
-
-3. `03_text_preprocessing.ipynb`
-   - Cleans text.
-   - Preserves negation words.
-   - Applies tokenization, lemmatization, and text feature engineering.
-
-4. `04_feature_extraction.ipynb`
-   - Creates official train/validation/test indices.
-   - Fits TF-IDF, scaler, and tokenizer only on the training split.
-   - Saves feature artifacts under `features/` and reusable preprocessing artifacts under `models/`.
-
-5. `05_model_training.ipynb`
-   - Trains classical ML models and neural models.
-   - Saves trained model artifacts into `models/`.
-
-6. `06_model_evaluation.ipynb`
-   - Evaluates models on the official test split.
-   - Generates comparison tables, confusion matrices, ROC/PR curves, history plots, error analysis, LIME output, and feature ablation results.
-
-7. `07_aspect_based_sentiment.ipynb`
-   - Runs rule-based aspect detection.
-   - Splits reviews into sentence/clause-level opinion units for mixed-aspect reviews.
-   - Produces food/service/ambience/price sentiment summaries.
-
-8. `08_bert_model.ipynb`
-   - Fine-tunes `distilbert-base-uncased`.
-   - Evaluates on the same official test split.
-   - Saves BERT weights as `pytorch_model.bin` to avoid Windows `model.safetensors` file-locking issues.
-
-## Models
-
-The project trains and compares:
-
-- Logistic Regression
-- Linear SVM
-- LightGBM
-- SGD Classifier
-- TextCNN
-- FastText-style neural baseline
-- LSTM
-- BiLSTM
-- CNN-LSTM
-- MLP artifact
-- DistilBERT
-
-The best classical models reach roughly 80% accuracy/F1 on the subjective 3-class task. Exact metrics are written to `results/final_evaluation.csv`, `results/model_comparison.csv`, and `results/bert_test_evaluation.csv` after running the evaluation notebooks.
-
-## Flask Web App
-
-Start the local app:
-
+**2. Web Uygulamasını Başlatma:**
+Tüm modeller eğitildikten veya `models/` klasörüne ilgili dosyalar (örn: `pytorch_model.bin`, `tfidf_vectorizer.pkl`) koyulduktan sonra:
 ```bash
 cd app
 python app.py
 ```
+Uygulamaya tarayıcınızdan `http://127.0.0.1:5000` adresinden erişebilirsiniz. Arayüzde tekil tahmin, toplu CSV tahmini, EDA panoları ve model karşılaştırma ekranları yer alır.
 
-Then open:
+## 📁 Dosya ve Klasör Yapısı
 
-```text
-http://127.0.0.1:5000
-```
-
-Main app features:
-
-- Single-review prediction with selectable model.
-- Confidence bars and word impact visualization.
-- ABSA insights for food, service, ambience, and price.
-- Sarcasm warning for suspicious positive wording around negative experiences.
-- Reviewer useful-vote input and trusted/fake-risk profiling.
-- Random dataset review loading.
-- All-model prediction table for quick comparison.
-- Bulk CSV prediction.
-- EDA and model comparison pages.
-
-The app automatically disables model buttons when the required artifact is missing from `models/`.
-
-## ABSA Behavior
-
-The ABSA module is intentionally rule-based and interpretable. It detects aspect keywords, then assigns sentiment to the local opinion unit rather than always using the whole review. This prevents mixed text such as:
-
-```text
-service is bad, soup is delicious
-```
-
-from assigning the same sentiment to both aspects. The expected ABSA output is:
-
-- Service: Poor
-- Food: Good
-
-## Generated Outputs
-
-After running the notebooks, the project can generate:
-
-- Model artifacts in `models/`
-- TF-IDF/scaler/tokenizer artifacts
-- Evaluation CSV files
-- Confusion matrices
-- ROC and PR curves
-- Training history plots
-- EDA plots and word clouds
-- LIME HTML explanation
-- ABSA plot
-- LaTeX report figures
-
-## Report
-
-The academic report is in:
-
-```text
-report/main.tex
-```
-
-Figures used by the report are stored under:
-
-```text
-report/figures/
-```
-
-## Notes
-
-- Keep the Flask app closed while overwriting large model files if Windows reports file-lock errors.
-- `08_bert_model.ipynb` saves DistilBERT weights as `pytorch_model.bin`; the Flask app prefers that file when it exists.
-- Because large artifacts are ignored, a fresh clone requires rerunning the notebooks or manually placing generated artifacts into `data/`, `features/`, `models/`, and `results/`.
+* **`app/`**: Flask web uygulaması, şablonlar (HTML/CSS), kod çözücü (decoder), alaycılık tespiti (sarcasm) modülleri.
+* **`report/`**: LaTeX formatında hazırlanmış, figürlerle desteklenmiş kapsamlı akademik rapor (`main.tex`).
+* **`data/`, `features/`, `models/`, `results/`, `bert_results/`**: Model ağırlıkları, indeksler, ön işlenmiş veri dosyaları ve sonuç çıktıları (Boyutlarından ötürü repoya dahil edilmemiştir, notebook'larla baştan üretilmelidir).
+* **`Yelp JSON/`**: Yelp orijinal verisinin atılması gereken klasör dizini.

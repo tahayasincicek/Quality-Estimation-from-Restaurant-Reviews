@@ -44,14 +44,14 @@ Kocaeli Üniversitesi\\
 \maketitle
 
 \begin{abstract}
-Bu çalışmada, Yelp açık veri setinden elde edilen yaklaşık 1,6 milyon restoran yorumu üzerinde metin madenciliği teknikleri kullanılarak müşteri deneyimlerinin kalite sınıflandırması gerçekleştirilmiştir. Ham metin verileri kapsamlı bir doğal dil işleme (NLP) boru hattından geçirilerek TF-IDF ve dizi (sequence) tabanlı öznitelik vektörlerine dönüştürülmüştür. Deneysel geçerliliği korumak amacıyla eğitim, doğrulama ve test ayrımı öznitelik çıkarımından önce yapılmış; TF-IDF vektörleştirici, sayısal ölçekleyici ve tokenizer yalnızca eğitim kümesi üzerinde öğrenilmiştir. Lojistik Regresyon, Destek Vektör Makineleri (SVM), LightGBM, SGD, TextCNN, FastText, LSTM, BiLSTM ve CNN-LSTM modelleri eğitilmiş ve karşılaştırılmıştır. Ayrıca Transformer tabanlı DistilBERT modeli, tüm resmi eğitim bölütü üzerinde ince ayar (fine-tuning) yapılarak eğitilmiş ve aynı resmi test indeksleri üzerinde değerlendirilmiştir. Test seti sonuçları, Lojistik Regresyon modelinin \%80,41 doğruluk ve \%80,40 F1-Makro skoru ile en yüksek performansı sergilediğini göstermektedir. Açıklanabilir Yapay Zekâ (LIME) yöntemiyle model kararları yorumlanmış, Yön-Bazlı Duygu Analizi (ABSA) ile yemek, servis, ambiyans ve fiyat gibi spesifik boyutlarda duygu analizi gerçekleştirilmiştir. Ek olarak, alaycılık (sarcasm) tespiti, metin kod çözümü (emoji/argo çevirisi) ve yorumcu profilleme modülleri geliştirilmiş ve Flask tabanlı etkileşimli bir web uygulamasına entegre edilmiştir.
+Bu çalışmada, Yelp açık veri setinden elde edilen yaklaşık 1,6 milyon restoran yorumu üzerinde metin madenciliği teknikleri kullanılarak müşteri deneyimlerinin kalite sınıflandırması gerçekleştirilmiştir. Ham metin verileri kapsamlı bir doğal dil işleme (NLP) boru hattından geçirilerek TF-IDF ve dizi (sequence) tabanlı öznitelik vektörlerine dönüştürülmüştür. Deneysel geçerliliği korumak amacıyla eğitim, doğrulama ve test ayrımı öznitelik çıkarımından önce yapılmış; TF-IDF vektörleştirici, sayısal ölçekleyici ve tokenizer yalnızca eğitim kümesi üzerinde öğrenilmiştir. Lojistik Regresyon, Destek Vektör Makineleri (SVM), SGD, TextCNN ve FastText modelleri eğitilmiş ve karşılaştırılmıştır. Ayrıca Transformer tabanlı DistilBERT modeli, tüm resmi eğitim bölütü üzerinde ince ayar (fine-tuning) yapılarak eğitilmiş ve aynı resmi test indeksleri üzerinde değerlendirilmiştir. Test seti sonuçları, Lojistik Regresyon modelinin \%80,41 doğruluk ve \%80,40 F1-Makro skoru ile en yüksek performansı sergilediğini göstermektedir. Açıklanabilir Yapay Zekâ (LIME) yöntemiyle model kararları yorumlanmış, Yön-Bazlı Duygu Analizi (ABSA) ile yemek, servis, ambiyans ve fiyat gibi spesifik boyutlarda duygu analizi gerçekleştirilmiştir. Ek olarak, alaycılık (sarcasm) tespiti, metin kod çözümü (emoji/argo çevirisi) ve yorumcu profilleme modülleri geliştirilmiş ve Flask tabanlı etkileşimli bir web uygulamasına entegre edilmiştir.
 
 \vspace{1em}
-\textbf{\textit{Abstract---}} In this study, customer experience quality classification was performed using text mining techniques on approximately 1.6 million restaurant reviews obtained from the Yelp open dataset. The raw text data was passed through a comprehensive natural language processing (NLP) pipeline and transformed into TF-IDF and sequence-based feature vectors. To maintain experimental validity, train, validation, and test splits were made prior to feature extraction; the TF-IDF vectorizer, numerical scaler, and tokenizer were fitted solely on the training set. Logistic Regression, Support Vector Machines (SVM), LightGBM, SGD, TextCNN, FastText, LSTM, BiLSTM, and CNN-LSTM models were trained and compared. Furthermore, the Transformer-based DistilBERT model was fine-tuned on the entire official training split and evaluated on the exact same official test indices. Test set results indicate that the Logistic Regression model exhibited the highest performance with 80.41\% accuracy and 80.40\% F1-Macro score. Model decisions were interpreted using the Explainable AI (LIME) method, and sentiment analysis was performed on specific dimensions such as food, service, ambiance, and price using Aspect-Based Sentiment Analysis (ABSA). Additionally, sarcasm detection, text decoding (emoji/slang translation), and reviewer profiling modules were developed and integrated into an interactive Flask-based web application.
+\textbf{\textit{Abstract---}} In this study, customer experience quality classification was performed using text mining techniques on approximately 1.6 million restaurant reviews obtained from the Yelp open dataset. The raw text data was passed through a comprehensive natural language processing (NLP) pipeline and transformed into TF-IDF and sequence-based feature vectors. To maintain experimental validity, train, validation, and test splits were made prior to feature extraction; the TF-IDF vectorizer, numerical scaler, and tokenizer were fitted solely on the training set. Logistic Regression, Support Vector Machines (SVM), SGD, TextCNN, and FastText models were trained and compared. Furthermore, the Transformer-based DistilBERT model was fine-tuned on the entire official training split and evaluated on the exact same official test indices. Test set results indicate that the Logistic Regression model exhibited the highest performance with 80.41\% accuracy and 80.40\% F1-Macro score. Model decisions were interpreted using the Explainable AI (LIME) method, and sentiment analysis was performed on specific dimensions such as food, service, ambiance, and price using Aspect-Based Sentiment Analysis (ABSA). Additionally, sarcasm detection, text decoding (emoji/slang translation), and reviewer profiling modules were developed and integrated into an interactive Flask-based web application.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Metin madenciliği, duygu analizi, doğal dil işleme, TF-IDF, derin öğrenme, LSTM, BiLSTM, DistilBERT, restoran yorumları, Yelp, makine öğrenmesi, yön-bazlı duygu analizi, açıklanabilir yapay zekâ
+Metin madenciliği, duygu analizi, doğal dil işleme, TF-IDF, derin öğrenme, TextCNN, DistilBERT, restoran yorumları, Yelp, makine öğrenmesi, yön-bazlı duygu analizi, açıklanabilir yapay zekâ
 \end{IEEEkeywords}
 
 % ============================================================
@@ -65,7 +65,7 @@ Duygu analizi (sentiment analysis), metinlerdeki öznel bilgileri tespit etmeyi 
 Bu çalışmanın temel katkıları şu şekilde özetlenebilir:
 \begin{itemize}
     \item Yaklaşık 1,6 milyon Yelp restoran yorumu üzerinde kapsamlı bir metin madenciliği boru hattı tasarlanmış ve uygulanmıştır.
-    \item Klasik makine öğrenmesi (Lojistik Regresyon, SVM, LightGBM, SGD) ve derin öğrenme (TextCNN, FastText, LSTM, BiLSTM, CNN-LSTM) modelleri sistematik olarak karşılaştırılmıştır.
+    \item Klasik makine öğrenmesi (Lojistik Regresyon, SVM, SGD) ve derin öğrenme (TextCNN, FastText) modelleri sistematik olarak karşılaştırılmıştır.
     \item Transformer tabanlı DistilBERT modeli, resmi eğitim bölütünün tamamı üzerinde ince ayar yapılarak eğitilmiş ve aynı resmi test indeksleri üzerinde değerlendirilmiştir.
     \item LIME tabanlı açıklanabilir yapay zekâ yöntemiyle model kararları yorumlanmıştır.
     \item Yön-Bazlı Duygu Analizi (ABSA) ile restoran deneyiminin farklı boyutları ayrıştırılmıştır.
@@ -83,7 +83,7 @@ Restoran yorumlarından duygu analizi üzerine literatürde çok sayıda çalı�
 
 TF-IDF (Term Frequency-Inverse Document Frequency) öznitelik çıkarımı, metin sınıflandırma görevlerinde yaygın olarak kullanılmaktadır \cite{salton1988term}. Bu yöntem, bir kelimenin bir belgede ne kadar önemli olduğunu, hem belge içi frekansını hem de külliyat genelindeki nadir görülme oranını dikkate alarak hesaplamaktadır.
 
-Derin öğrenme yaklaşımları açısından, Kim \cite{kim2014convolutional} Evrişimli Sinir Ağlarını (CNN) metin sınıflandırma için uyarlayarak TextCNN mimarisini önermiştir. Hochreiter ve Schmidhuber \cite{hochreiter1997long} tarafından geliştirilen LSTM ağları ise sıralı verilerdeki uzun vadeli bağımlılıkları yakalamada başarılı olmuştur. Schuster ve Paliwal \cite{schuster1997bidirectional} tarafından önerilen çift yönlü (bidirectional) yapı, hem geçmiş hem de gelecek bağlamın modellenmesine olanak tanımıştır.
+Derin öğrenme yaklaşımları açısından, Kim \cite{kim2014convolutional} Evrişimli Sinir Ağlarını (CNN) metin sınıflandırma için uyarlayarak TextCNN mimarisini önermiştir.
 
 Joulin ve ark. \cite{joulin2017bag} tarafından önerilen FastText modeli, kelime n-gram'larını kullanarak hızlı ve etkili metin sınıflandırması yapmaktadır.
 
@@ -378,9 +378,6 @@ TF-IDF + sayısal öznitelikler üzerinde eğitilmiştir. Modelde \texttt{C=1}, 
 \subsubsection{Destek Vektör Makineleri (SVM)}
 \texttt{LinearSVC} sınıflandırıcısı, \texttt{CalibratedClassifierCV} sarmalayıcısı ile olasılık tahmini yapabilir hâle getirilmiştir. TF-IDF + sayısal öznitelikler üzerinde tüm eğitim verisiyle eğitilmiştir.
 
-\subsubsection{LightGBM}
-Gradyan artırma (gradient boosting) çerçevesi olan LightGBM, TF-IDF öznitelikleri üzerinde eğitilmiştir \cite{ke2017lightgbm}. Büyük ve seyrek matrislerle verimli çalışabilme avantajı sunan bu model, tüm eğitim verisiyle eğitilmiştir.
-
 \subsubsection{SGD Sınıflandırıcı}
 Stokastik Gradyan İnişi (SGD) tabanlı doğrusal sınıflandırıcı, log-loss kaybı ve dengeli sınıf ağırlıkları ile TF-IDF matrisi üzerinde eğitilmiştir. Büyük ölçekli veri setlerinde bellek açısından verimli bir alternatif sunmaktadır.
 
@@ -389,15 +386,6 @@ Kim \cite{kim2014convolutional}'in önerdiği CNN tabanlı metin sınıflandırm
 
 \subsubsection{FastText}
 Joulin ve ark. \cite{joulin2017bag}'nın yaklaşımından esinlenerek tasarlanmıştır. 128 boyutlu gömme katmanı, \texttt{GlobalAveragePooling1D}, 64 birimlik yoğun katman, \%30 Dropout ve softmax çıkış katmanından oluşmaktadır. Eğitim süresi yalnızca 12 saniyedir.
-
-\subsubsection{LSTM}
-Hochreiter ve Schmidhuber \cite{hochreiter1997long}'in LSTM mimarisi, 128 boyutlu gömme katmanı üzerine LSTM katmanı, Dropout ve yoğun katmanlardan oluşmaktadır. Sıralı verilerdeki uzun vadeli bağımlılıkları yakalamak amacıyla tasarlanmıştır.
-
-\subsubsection{BiLSTM}
-Çift yönlü LSTM (BiLSTM), hem ileri hem geri yöndeki bağlamı yakalayarak tek yönlü LSTM'e göre daha zengin bir temsil oluşturmaktadır. 128 boyutlu gömme katmanı, çift yönlü LSTM katmanı, Dropout ve yoğun katmanlardan oluşmaktadır.
-
-\subsubsection{CNN-LSTM}
-Evrişimli ve tekrarlayan katmanları birleştiren hibrit bir mimaridir. Conv1D katmanları ile yerel n-gram örüntüleri çıkarılmış, ardından LSTM katmanı ile sıralı bağımlılıklar modellenmiştir. Bu yaklaşım, hem yerel hem de global bağlamı eş zamanlı olarak yakalamayı amaçlamaktadır.
 
 \subsubsection{DistilBERT (Transformer)}
 Transformer mimarilerinin performansını değerlendirmek amacıyla \texttt{distilbert-base-uncased} modeli ince ayar (fine-tuning) ile eğitilmiştir \cite{sanh2019distilbert}. DistilBERT, orijinal BERT modelinin daha hafif ve hızlı bir versiyonudur. Model, resmi eğitim bölütünün tamamı üzerinde 3 epoch boyunca ince ayar yapılmıştır. Eğitim parametreleri: öğrenme oranı $2 \times 10^{-5}$, batch boyutu 16, ağırlık azalma (weight decay) 0,01 ve \texttt{load\_best\_model\_at\_end=True}. Doğrulama ve nihai test aşamalarında klasik modellerle aynı resmi veri bölütleri kullanılmıştır.
@@ -478,13 +466,13 @@ Destek Vektör Makineleri (SVM) modelinin matrisi de (Şekil~\ref{fig:cm_svm}) L
     \label{fig:cm_svm}
 \end{figure}
 
-Ağaç tabanlı LightGBM modelinde ise (Şekil~\ref{fig:cm_lgbm}), Orta sınıfında yapılan tahmin hatalarının doğrusal modellere kıyasla marjinal olarak daha yüksek olduğu göze çarpmaktadır. Bu durum, seyrek TF-IDF matrislerinde ağaç bölünmelerinin doğrusal ayrım sınırları kadar esnek olamayabileceğine işaret etmektedir.
+Derin öğrenme modellerinden TextCNN'in matrisine (Şekil~\ref{fig:cm_textcnn}) bakıldığında, yerel n-gram örüntülerinin çıkarılmasında başarılı olduğu ve hataların genel olarak "Orta" sınıfında toplandığı gözlemlenmektedir. Klasik modellere kıyasla "Orta" sınıfın tespitinde daha fazla zorlandığı dikkat çekmektedir.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics{confusion_matrix_LightGBM.png}
-    \caption{Karışıklık Matrisi -- LightGBM.}
-    \label{fig:cm_lgbm}
+    \includegraphics{confusion_matrix_TextCNN.png}
+    \caption{Karışıklık Matrisi -- TextCNN.}
+    \label{fig:cm_textcnn}
 \end{figure}
 
 Derin öğrenme modellerinden FastText'in matrisi (Şekil~\ref{fig:cm_ft}), kısıtlı eğitim verisine rağmen oldukça dengeli bir hata dağılımı sergilemiştir. Çıkarılan kelime gömmelerinin (embeddings) sınıfları temsil etme yeteneği bu tabloda görülmektedir.
@@ -496,16 +484,16 @@ Derin öğrenme modellerinden FastText'in matrisi (Şekil~\ref{fig:cm_ft}), kıs
     \label{fig:cm_ft}
 \end{figure}
 
-Son olarak BiLSTM modelinin matrisine (Şekil~\ref{fig:cm_bilstm}) bakıldığında, "Orta" sınıfındaki hata oranının belirgin şekilde arttığı ve bu sınıfın bir kısmının Kötü veya İyi sınıfı içine sızdığı gözlemlenmektedir. Özellikle Kötü sınıfın tespitinde daha muhafazakar bir yaklaşım benimsediği görülmektedir.
+Stokastik Gradyan İnişi (SGD) modelinin matrisinde ise (Şekil~\ref{fig:cm_sgd}), Lojistik Regresyon ve SVM modellerine oldukça yakın bir hata dağılımı izlenmiştir. Bu durum, SGD'nin büyük veri üzerinde doğrusallığı yüksek performansla ve verimli bir şekilde öğrenebildiğini göstermektedir.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics{confusion_matrix_BiLSTM.png}
-    \caption{Karışıklık Matrisi -- BiLSTM.}
-    \label{fig:cm_bilstm}
+    \includegraphics{confusion_matrix_SGD.png}
+    \caption{Karışıklık Matrisi -- SGD.}
+    \label{fig:cm_sgd}
 \end{figure}
 
-Karışıklık matrisleri (Şekil~\ref{fig:cm_lr}--\ref{fig:cm_bilstm}) incelendiğinde, tüm modellerde en yaygın hatanın ``Kötü'' ve ``Orta'' sınıfları arasındaki karışıklık olduğu gözlemlenmektedir. Bu durum, 2-3 yıldızlı yorumların dilsel olarak birbirine yakın olmasından kaynaklanmaktadır. ``İyi'' sınıfı ise tüm modellerde en yüksek doğrulukla sınıflandırılmaktadır.
+Karışıklık matrisleri (Şekil~\ref{fig:cm_lr}--\ref{fig:cm_sgd}) incelendiğinde, tüm modellerde en yaygın hatanın ``Kötü'' ve ``Orta'' sınıfları arasındaki karışıklık olduğu gözlemlenmektedir. Bu durum, 2-3 yıldızlı yorumların dilsel olarak birbirine yakın olmasından kaynaklanmaktadır. ``İyi'' sınıfı ise tüm modellerde en yüksek doğrulukla sınıflandırılmaktadır.
 
 \subsection{ROC ve Precision-Recall Eğrileri}
 
