@@ -15,7 +15,7 @@ Temel tahmin görevi, yorumların kalite/duygu açısından 3 sınıfa ayrılmas
 - `1` Orta (Average / Neutral) - 3 Yıldız
 - `2` İyi (Good) - 4 ve 5 Yıldız
 
-## 📌 Proje Kapsamı ve Öne Çıkan Özellikler
+## Proje Kapsamı ve Öne Çıkan Özellikler
 
 - **Veri Sızıntısını Önleyen Tasarım (Data Leakage Prevention):** Eğitim, doğrulama ve test ayrımı, TF-IDF, tokenizer ve ölçekleyiciler uygulanmadan önce yapılmış; böylece test seti hiçbir şekilde eğitim aşamasına sızmamıştır.
 - **Dengeli Veri Seti:** Azınlık sınıflarına göre (Orta sınıfı) alt-örnekleme yapılarak her sınıftan 543.093 örnek olacak şekilde toplam ~1.62 milyon yorumla dengeli bir veri seti oluşturulmuştur.
@@ -25,15 +25,15 @@ Temel tahmin görevi, yorumların kalite/duygu açısından 3 sınıfa ayrılmas
 - **Yön-Bazlı Duygu Analizi (ABSA):** Yorumlar cümle bazlı ayrıştırılıp *Yemek, Servis, Ambiyans* ve *Fiyat* gibi spesifik boyutlarda değerlendirilmiştir.
 - **Gelişmiş Web Uygulaması:** Eğitilen tüm modellerin entegre edildiği etkileşimli bir arayüz geliştirilmiştir.
 
-## 🚀 Web Uygulaması Gelişmiş Modülleri
+## Web Uygulaması Gelişmiş Modülleri
 
 Flask tabanlı web uygulaması (`app/app.py`), temel çıkarım işlemlerine ek olarak yenilikçi analiz katmanları içermektedir:
 1. **Alaycılık (Sarcasm) Tespiti:** Kural tabanlı stratejilerle (örneğin olumlu sıfatların ünlemle birlikte olumsuz bir bağlamda kullanılması) alaycı yorumları tespit edip kullanıcıyı uyarır.
-2. **Metin Kod Çözümü (Text Decoder):** Emojileri (örn. 🔥 $\rightarrow$ excellent) ve internet argosunu (örn. tbh, ngl) NLP dostu kelimelere çevirerek modele besler.
+2. **Metin Kod Çözümü (Text Decoder):** Emojileri ve internet argosunu (örn. tbh, ngl) NLP dostu kelimelere çevirerek modele besler.
 3. **Yorumcu Profilleme (Reviewer Profiler):** Kullanıcıların "faydalı" (useful) oy sayılarını inceleyerek, çok düşük oylu ancak aşırı uçlarda yorum yapan hesaplar için spam/sahte yorum riski uyarısı verir.
 4. **Olumsuzluk İşleme (Negation Handling):** Ön işleme sırasında "not bad" ifadesini "good" olarak, "not expensive" ifadesini "cheap" olarak dönüştüren özel bir modül kullanır.
 
-## 📊 Deneysel Sonuçlar
+## Deneysel Sonuçlar
 
 Modeller aynı resmi test indeksleri üzerinde değerlendirilmiştir. Klasik modeller arasında en iyi sonucu Lojistik Regresyon vermiştir:
 
@@ -47,7 +47,7 @@ Modeller aynı resmi test indeksleri üzerinde değerlendirilmiştir. Klasik mod
 
 *Not: DistilBERT gibi Transformer mimarileri ve diğer derin öğrenme sonuçları ilgili rapor/notebook'larda mevcuttur.*
 
-## 📂 Repozitörü ve Notebook Boru Hattı (Pipeline)
+## Repozitörü ve Notebook Boru Hattı (Pipeline)
 
 Sistemi baştan uca çalıştırmak ve çıktıları yeniden üretmek için notebook'ları aşağıdaki sırayla çalıştırınız:
 
@@ -60,7 +60,7 @@ Sistemi baştan uca çalıştırmak ve çıktıları yeniden üretmek için note
 7. `07_aspect_based_sentiment.ipynb`: ABSA kural setlerini çalıştırarak duygu yönlerini (Yemek, Servis vs.) belirler.
 8. `08_bert_model.ipynb`: `distilbert-base-uncased` modelini PyTorch ile ince ayardan geçirerek değerlendirir.
 
-## 💻 Kurulum ve Çalıştırma
+## Kurulum ve Çalıştırma
 
 **1. Gerekli kütüphaneleri yükleyin:**
 ```bash
@@ -78,7 +78,7 @@ python app.py
 ```
 Uygulamaya tarayıcınızdan `http://127.0.0.1:5000` adresinden erişebilirsiniz. Arayüzde tekil tahmin, toplu CSV tahmini, EDA panoları ve model karşılaştırma ekranları yer alır.
 
-## 📁 Dosya ve Klasör Yapısı
+## Dosya ve Klasör Yapısı
 
 * **`app/`**: Flask web uygulaması, şablonlar (HTML/CSS), kod çözücü (decoder), alaycılık tespiti (sarcasm) modülleri.
 * **`report/`**: LaTeX formatında hazırlanmış, figürlerle desteklenmiş kapsamlı akademik rapor (`main.tex`).
