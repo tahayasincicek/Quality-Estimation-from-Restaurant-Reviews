@@ -19,7 +19,7 @@ Temel tahmin görevi, yorumların kalite/duygu açısından 3 sınıfa ayrılmas
 
 - **Veri Sızıntısını Önleyen Tasarım (Data Leakage Prevention):** Eğitim, doğrulama ve test ayrımı, TF-IDF, tokenizer ve ölçekleyiciler uygulanmadan önce yapılmış; böylece test seti hiçbir şekilde eğitim aşamasına sızmamıştır.
 - **Dengeli Veri Seti:** Azınlık sınıflarına göre (Orta sınıfı) alt-örnekleme yapılarak her sınıftan 543.093 örnek olacak şekilde toplam ~1.62 milyon yorumla dengeli bir veri seti oluşturulmuştur.
-- **Kapsamlı Klasik ve Derin Öğrenme Modelleri:** Lojistik Regresyon, Destek Vektör Makineleri (SVM), SGD, LightGBM gibi klasik modeller ile TextCNN, FastText, LSTM, BiLSTM, CNN-LSTM gibi derin öğrenme mimarileri kıyaslanmıştır.
+- **Kapsamlı Klasik ve Derin Öğrenme Modelleri:** Lojistik Regresyon, Destek Vektör Makineleri (SVM) ve SGD gibi klasik modeller ile TextCNN ve FastText gibi derin öğrenme mimarileri kıyaslanmıştır.
 - **DistilBERT Entegrasyonu:** Orijinal eğitim bölütü üzerinde `distilbert-base-uncased` modeli kullanılarak Transformer tabanlı ince ayar (fine-tuning) yapılmıştır.
 - **LIME ile Açıklanabilir Yapay Zeka (XAI):** Modellerin tahmin kararlarının hangi kelimelere ve köklere bağlı olduğu kelime ağırlıklarıyla görselleştirilmiştir.
 - **Yön-Bazlı Duygu Analizi (ABSA):** Yorumlar cümle bazlı ayrıştırılıp *Yemek, Servis, Ambiyans* ve *Fiyat* gibi spesifik boyutlarda değerlendirilmiştir.
@@ -45,7 +45,7 @@ Modeller aynı resmi test indeksleri üzerinde değerlendirilmiştir. Klasik mod
 | **FastText** | %75,82 | %75,82 | %75,82 | %75,76 |
 | **SGD** | %75,52 | %75,23 | %75,52 | %75,30 |
 
-*Not: DistilBERT gibi Transformer mimarileri ve diğer derin öğrenme sonuçları ilgili rapor/notebook'larda mevcuttur.*
+*Not: DistilBERT gibi Transformer mimarisi sonuçları ilgili rapor/notebook'larda mevcuttur.*
 
 ## Repozitörü ve Notebook Boru Hattı (Pipeline)
 

@@ -354,7 +354,7 @@ Deneysel geçerliliği korumak için veri seti, öznitelik çıkarımından önc
 Klasik makine öğrenmesi modelleri için TF-IDF (Term Frequency--Inverse Document Frequency) yöntemi kullanılmıştır. Parametreler: \texttt{max\_features=50000}, \texttt{ngram\_range=(1,2)}, \texttt{sublinear\_tf=True}, \texttt{min\_df=2}, \texttt{max\_df=0.95}. TF-IDF matrisi, eğitim kümesi üzerinde öğrenildikten sonra tüm veri bölütlerine uygulanmıştır. Ardından StandardScaler ile normalize edilmiş 8 sayısal öznitelikle birleştirilerek $(1.629.206 \times 50.008)$ boyutunda bir birleşik öznitelik matrisi elde edilmiştir.
 
 \subsubsection{Dizi Kodlama (Sequence Encoding)}
-Derin öğrenme modelleri (TextCNN, FastText, LSTM, BiLSTM, CNN-LSTM) için Keras \texttt{Tokenizer} kullanılmıştır. Tokenizer yalnızca eğitim metinleri üzerinde eğitilmiş, en sık 50.000 kelime seçilmiş ve her yorum 200 token uzunluğunda sabitlenmiştir (kısa yorumlar sıfırla doldurulmuş, uzun yorumlar kesilmiştir). Bu yaklaşım, doğrulama ve test kümelerindeki kelimelerin sözlük öğrenimine etki etmesini engellemiştir.
+Derin öğrenme modelleri (TextCNN, FastText) için Keras \texttt{Tokenizer} kullanılmıştır. Tokenizer yalnızca eğitim metinleri üzerinde eğitilmiş, en sık 50.000 kelime seçilmiş ve her yorum 200 token uzunluğunda sabitlenmiştir (kısa yorumlar sıfırla doldurulmuş, uzun yorumlar kesilmiştir). Bu yaklaşım, doğrulama ve test kümelerindeki kelimelerin sözlük öğrenimine etki etmesini engellemiştir.
 
 \subsubsection{DistilBERT Tokenizasyonu}
 DistilBERT modeli için HuggingFace \texttt{AutoTokenizer} kullanılmıştır. Metinler 128 token uzunluğunda kesilmiş, \texttt{max\_length} dolgu (padding) uygulanmış ve PyTorch tensörlerine dönüştürülmüştür.
@@ -618,7 +618,7 @@ ABSA analizi cümle düzeyinde çalışmaktadır: metin önce \texttt{sent\_toke
 \section{Web Uygulaması}
 \label{sec:webapp}
 
-Projenin uygulamaya dönük boyutu olarak Flask tabanlı etkileşimli bir web uygulaması geliştirilmiştir. Uygulama, eğitilen tüm modelleri (LR, SVM, LightGBM, SGD, TextCNN, FastText, DistilBERT) yükleyerek gerçek zamanlı çıkarım (inference) yapabilmektedir. Modellerin kullanılabilirlik durumu otomatik olarak tespit edilmekte; kayıtlı ağırlık dosyası bulunamayan modeller arayüzde devre dışı gösterilmektedir.
+Projenin uygulamaya dönük boyutu olarak Flask tabanlı etkileşimli bir web uygulaması geliştirilmiştir. Uygulama, eğitilen tüm modelleri (LR, SVM, SGD, TextCNN, FastText, DistilBERT) yükleyerek gerçek zamanlı çıkarım (inference) yapabilmektedir. Modellerin kullanılabilirlik durumu otomatik olarak tespit edilmekte; kayıtlı ağırlık dosyası bulunamayan modeller arayüzde devre dışı gösterilmektedir.
 
 \subsection{Temel İşlevler}
 Uygulama beş ana sayfadan oluşmaktadır:
@@ -721,7 +721,7 @@ Bu çalışmada, Yelp açık veri setinden elde edilen 1,6 milyon restoran yorum
 
 \begin{enumerate}
     \item Lojistik Regresyon, TF-IDF öznitelikleriyle \%80,41 doğruluk ve \%80,40 F1-Makro skoru elde ederek en yüksek performansı sergilemiştir.
-    \item Klasik makine öğrenmesi modelleri (LR, SVM, LightGBM), standart derin öğrenme modellerinden (TextCNN, FastText, BiLSTM) tutarlı bir şekilde üstün performans göstermiştir.
+    \item Klasik makine öğrenmesi modelleri (LR, SVM, SGD), standart derin öğrenme modellerinden (TextCNN, FastText) tutarlı bir şekilde üstün performans göstermiştir.
 
     \item DistilBERT modeli, tüm resmi eğitim bölütü üzerinde ince ayar yapılarak eğitilmiş ve aynı resmi test indeksleri üzerinde değerlendirilmiştir.
     \item TextBlob duygu polaritesi, sınıflar arası güçlü ayırt edicilik özelliği taşımaktadır; ablasyon deneyi, sayısal özniteliklerin F1 skoruna küçük ama tutarlı bir katkı sağladığını doğrulamıştır.
@@ -764,7 +764,6 @@ M. Schuster and K. K. Paliwal, ``Bidirectional recurrent neural networks,'' \tex
 A. Joulin, E. Grave, P. Bojanowski, and T. Mikolov, ``Bag of tricks for efficient text classification,'' in \textit{Proc. 15th Conf. European Chapter of the Association for Computational Linguistics (EACL)}, 2017, pp. 427--431.
 
 \bibitem{ke2017lightgbm}
-G. Ke, Q. Meng, T. Finley, T. Wang, W. Chen, W. Ma, Q. Ye, and T.-Y. Liu, ``LightGBM: A highly efficient gradient boosting decision tree,'' in \textit{Advances in Neural Information Processing Systems}, 2017, pp. 3146--3154.
 
 \bibitem{ribeiro2016why}
 M. T. Ribeiro, S. Singh, and C. Guestrin, ``Why should I trust you? Explaining the predictions of any classifier,'' in \textit{Proc. 22nd ACM SIGKDD Int. Conf. Knowledge Discovery and Data Mining}, 2016, pp. 1135--1144.
